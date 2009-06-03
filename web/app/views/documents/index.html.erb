@@ -1,0 +1,23 @@
+<div class="container" id="search">
+	
+	<div class="left">
+		<h4>Limit By:</h4>
+		<hr/>
+		<div id="facets">
+			<%= render 'facets' %>
+		</div>
+	</div>
+	
+	<div class="right">
+	
+		<%= render 'search_form' %>
+
+		<%= will_paginate @documents %>
+
+		<div id="searchResults">
+			<%= render 'search_results' %>
+		</div>
+	
+	</div>
+  
+</div>

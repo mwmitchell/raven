@@ -1,0 +1,6 @@
+upload tei doc
+
+show pre-generated toc structure
+
+choose profile:
+	toc based on head tags

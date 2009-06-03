@@ -1,0 +1,39 @@
+indexing outline
+
+*fragment* xml documents into mini solr docs
+	why?
+		single doc rendering will be fast -- can use xsl/ruby
+		search results will be fast, because entire source doc/xml isn't getting parsed/transformed
+		complex pagination (TEI "pb") is easier to do at index time
+			- also simplified at render/request time too (they're just solr docs)
+
+store xml in solr
+	could do file system, but solr is already storing full text
+		* xml is subset of source xml doc, so it's relatively small
+	easiest and simplest solution (just add the field)
+	the search results can exclude the xml field
+
+* storage mechanism will be flexible (database, file system)
+
+why not store solr docs with xpath pointers, instead of the xml?
+	each show view is loading the entire xml document -- could be REALLY large; > 10MB
+
+view rendering is fast
+	processing only small fragment
+
+table of contents/navigation
+	toc needs to be generated at index time
+	toc is JSON tree that contains labels, and solr-doc pointers; {label:"Section One", solr_id:191, children:[]}
+
+problems
+	search results have many docs for one collection, could be a UI issue
+		can solr group these items? field collapsing SOLR-236
+
+--
+
+alternatives
+	store xpath pointers in solr docs, keep source intact
+		problem: document views are loading entire xml source; sometimes >10MB
+	store entire xml in solr as multiple fields (highlighting links to field, which is then TOC node)
+		highlighting large fields is SLOW
+		could create tens (hundreds?) of dynamic fields in solr

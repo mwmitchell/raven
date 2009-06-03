@@ -1,0 +1,9 @@
+<form id="searchForm" method="get">
+	<input type="text" id="q" name="q" value="<%= h params[:q] %>" />
+	<input type="submit" id="searchButton" value="search" />
+	<% if params[:f] %>
+		<% params[:f].each do |k,v| %>
+			<input type="hidden" name="f[<%= h k %>][]" value="<%= h v %>" />
+		<% end %>
+	<% end %>
+</form>

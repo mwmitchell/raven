@@ -1,0 +1,23 @@
+<% unless params[:q].blank? %>
+	<div>
+		Your search for <em><%= h params[:q] %></em> matched <%= @response.response[:numFound] %> documents.
+		<%= link_to 'Start over', documents_path %>.
+	</div>
+<% end %>
+
+<% @documents.each do |doc| %>
+  <div class="document">
+    <h5><%= doc[:collection_title_s] + (doc[:copy_s] ? "; #{doc[:copy_s]}" : '') %></h5>
+	<div>Title: <%= doc[:title] %></div>
+	<div>Author: <%= doc[:author_s] %></div>
+	<% if @response[:highlighting] %>
+		<% hl_snippets(doc) do |f,v| %>
+	      <div class="hlSnippet">
+	        ...<%= link_to v, document_path(doc[:id], :q=>params[:q]) %>...
+	      </div>
+	    <% end %>
+	<% else %>
+		<%= truncate doc[:xml_t], 200 %> <%= link_to 'view', document_path(doc[:id]) %>
+	<% end %>
+  </div>
+<% end %>

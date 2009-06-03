@@ -1,0 +1,7 @@
+127.0.0.1 -  -  [16/05/2009:02:57:20 +0000] "GET /solr/select?hl=on&hl.fl=%2A_s&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:21 +0000] "GET /solr/select?hl=on&hl.fl=%2A_s&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:22 +0000] "GET /solr/select?hl=on&hl.fl=%2A_s&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:33 +0000] "GET /solr/select?hl=on&hl.fl=%2A_t&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:34 +0000] "GET /solr/select?hl=on&hl.fl=%2A_t&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:35 +0000] "GET /solr/select?hl=on&hl.fl=%2A_t&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 
+127.0.0.1 -  -  [16/05/2009:02:57:36 +0000] "GET /solr/select?hl=on&hl.fl=%2A_t&q=love&qt=dismax&rows=10&wt=ruby HTTP/1.1" 200 2609401 

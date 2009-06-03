@@ -1,0 +1,24 @@
+<% @response.facets.each do |facet| %>
+	<div class="facet">
+		
+		<strong><%= h facet.name %></strong>
+		
+		<ul>
+			
+			<% facet.items.each do |item| %>
+				<% if facet_in_params? facet.name, item.value %>
+					<li>
+						<%= item.value %> (<%= item.hits %>)
+						<%= link_to 'remove', remove_facet_params(facet.name, item.value) %>
+					</li>
+				<% else %>
+					<li>
+						<%= link_to item.value, add_facet_params(facet.name, item.value) %> (<%= item.hits %>)
+					</li>
+				<% end %>
+			<% end %>
+
+		</ul>
+		
+	</div>
+<% end %>

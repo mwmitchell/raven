@@ -1,0 +1,69 @@
+<% html_bottom << capture do %>
+	
+	<%= javascript_include_tag 'highlight.jquery.js', 'ajax-form.jquery.js' %>
+	
+	<script type="text/javascript">
+		$(function(){
+			$('#sectionSelect').change(function(){
+				window.location = $(this).val();
+			});
+			
+			<% rules = /[\w\s.0-9_-]+/ %>
+			<% if params[:q] =~ rules %>
+			$('.documentBody').highlight("<%= params[:q].scan(rules).first %>")
+			<% end %>
+			
+			//
+			
+			<% if params[:q] %>
+			$('#collectionSearch').ajaxSubmit(function(data){
+				$('#searchResults').html(data);
+			})
+			<% end %>
+			
+			$('#collectionSearch').ajaxForm(function(data){
+				$('#searchResults').html(data);
+			})
+			
+		});
+	</script>
+<% end %>
+
+<div class="container documentDetails">
+	
+	<div class="left toc">
+		
+		<h3>browse this collection:</h3>
+	    <select id="sectionSelect">
+			<% @document.full_toc.each do |item| %>
+	        	<option value="<%= document_path(item['id'], :q=>params[:q]) %>" <%= 'selected="selected"' if params[:id] == item['id'] or item['children'].any?{|c|c['id'] == params[:id]} %>"><%= h item['label'] %></option>
+	      <% end %>
+	    </select>
+		
+		<h3>search this collection:</h3>
+		<% form_tag collection_search_documents_path, {:method=>:get, :id=>'collectionSearch'} do %>
+			<% facet_fields.each do |ff| %>
+				<%= hidden_field_tag "f[#{ff}][]", @document[ff] %>
+			<% end %>
+			<%= text_field_tag :q, params[:q] %>
+			<%= submit_tag 'search' %>
+		<% end %>
+		
+		<div id="searchResults"></div>
+		
+	</div>
+	
+	<div class="right">
+		
+		<hr/>
+		<% @document.target_toc['children'].each do |item| %>
+			<strong><%= link_to_unless_current item['label'], document_path(item['id'], :q=>params[:q]) %></strong> | 
+		<% end %>
+		<hr/>
+		
+		<div class="documentBody">
+			<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+		</div>
+		
+	</div>
+</div>
