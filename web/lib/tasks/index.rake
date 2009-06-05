@@ -1,5 +1,3 @@
-require 'raven'
-
 def error!(msg)
   puts "
   *** #{msg}
@@ -11,10 +9,12 @@ namespace :index do
   
   task :swinburne=>:environment do
     
+    require 'raven'
+    
     collection_id = 'swinburne'
     
-    #RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
-    #RSOLR.commit
+    RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
+    RSOLR.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
       next if f =~ /backup/
@@ -89,11 +89,20 @@ namespace :index do
         end
       end
       
-      puts "Processed #{root.documents.size} documents"
+      puts "
       
-      #RSOLR.add root.documents
-      #Raven::DocExt.store_toc root.navigation, "#{collection_id}#{variant_id}"
+      ***** processed #{root.documents.size} documents
+      
+      "
+      
+      RSOLR.add root.documents
+      
+      toc_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
+      Raven::DocExt::TOC.store_toc(root.navigation, toc_name)
+      
     end
+    
+    RSOLR.commit
     
   end
   

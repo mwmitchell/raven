@@ -155,20 +155,19 @@ module Raven
 
       def target_toc
         @target_toc ||= (
-          full_toc.detect{|i| i['children'].detect{|cc|cc['id'] == self[:id]} }
+          full_toc['children'].last['children'].detect{|i| i['children'].detect{|cc|cc['id'] == self[:id]} }
         )
       end
       
       def full_toc
         @full_toc ||= (
-          toc_file = "toc#{self[:copy_s].nil? ? '' : '.' + self[:copy_s]}.json"
-          ActiveSupport::JSON.decode(File.read(TOC_BASE_DIR + "/#{self[:collection_id_s]}/#{toc_file}"))
+          toc_file = self[:variant_s].to_s.empty? ? '' : '.' + self[:variant_s]
+          ActiveSupport::JSON.decode(File.read(TOC_BASE_DIR + "/#{self[:collection_id_s]}#{toc_file}.json"))
         )
       end
       
-      def self.store_toc(toc, unit_id)
-        file = app_path('tmp', 'cache', 'toc', unit_id)
-        file += ".#{unit_id}" unless unit_id.empty?
+      def self.store_toc(toc, name)
+        file = File.join(TOC_BASE_DIR, name)
         file += ".json"
         File.open(file, File::CREAT|File::TRUNC|File::WRONLY) do |f|
           f.puts toc.to_json

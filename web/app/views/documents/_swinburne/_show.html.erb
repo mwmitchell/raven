@@ -34,8 +34,9 @@
 	<div class="left toc">
 		
 		<h3>browse this collection:</h3>
+		
 	    <select id="sectionSelect">
-			<% @document.full_toc.each do |item| %>
+			<% @document.full_toc['children'].last['children'].each do |item| %>
 	        	<option value="<%= document_path(item['id'], :q=>params[:q]) %>" <%= 'selected="selected"' if params[:id] == item['id'] or item['children'].any?{|c|c['id'] == params[:id]} %>"><%= h item['label'] %></option>
 	      <% end %>
 	    </select>
@@ -55,14 +56,17 @@
 	
 	<div class="right">
 		
+		
 		<hr/>
 		<% @document.target_toc['children'].each do |item| %>
 			<strong><%= link_to_unless_current item['label'], document_path(item['id'], :q=>params[:q]) %></strong> | 
 		<% end %>
 		<hr/>
 		
+		
 		<div class="documentBody">
-			<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+			<% # xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+			<%= @document[:xml_s] %>
 		</div>
 		
 	</div>
