@@ -25,11 +25,11 @@ end
 module NokogiriNodeHelpers
   
   # returns all previous siblings
-  def previous_siblings
-    @ps ||= (
-      previous_sibling ? (previous_sibling.previous_siblings + [previous_sibling]) : []
-    )
-  end
+  #def previous_siblings
+  #  @ps ||= (
+  #    previous_sibling ? (previous_sibling.previous_siblings + [previous_sibling]) : []
+  #  )
+  #end
   
   # returns all previous siblings, plus parent previous siblings (recursively)
   def previous_nodes_recursive
@@ -44,7 +44,7 @@ module NokogiriNodeHelpers
           (parent.previous_nodes_recursive) + 
           (previous_sibling ? previous_sibling.previous_nodes_recursive : []) + 
           [previous_sibling]
-        ).flatten.compact
+        ).flatten.uniq.compact
       end
     )
   end
@@ -76,9 +76,7 @@ class NokogiriFragmenter
       
       source_copy.flatten.each do |e|
         first_found ||= e.name == pattern
-        if first_found
-          e.remove
-        end
+        e.remove if first_found
       end
       
       yield source_copy if first_found
@@ -88,6 +86,7 @@ class NokogiriFragmenter
         source_copy = source.dup
         
         node = source_copy.at(snode.path)
+        
         found = nil
         after = nil
         
@@ -96,11 +95,9 @@ class NokogiriFragmenter
         source_copy.flatten.each do |e|
           
           # skip the document element
-          if e == source_copy
-            next
-          end
+          next if e == source_copy
           
-          # have we found the current fragment node?
+          # have we found the current (first) fragment node?
           if found.nil? and e.name == node.name
             found = true
             next

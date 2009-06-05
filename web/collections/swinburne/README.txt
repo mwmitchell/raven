@@ -1,1 +1,1 @@
-The Swinburne texts are not finished/complete and in an "beta" state.
+The Swinburne texts are not finished ("beta") and are owned by Bethany Nowviskie.

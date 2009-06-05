@@ -13,78 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+Solr example configuration
+--------------------------
 
-Welcome to the Apache Solr project!
------------------------------------
+To run this example configuration, use 
 
-Apache Solr is a search server based on the Apache Lucene search
-library. 
+  java -jar start.jar
 
-For a complete description of the Solr project, team composition, source
-code repositories, and other details, please see the Solr web site at
-http://lucene.apache.org/solr.html.
+in this directory, and when Solr is started connect to 
 
+  http://localhost:8983/solr/admin/
 
-Getting Started
----------------
+To add documents to the index, use the post.sh script in
+the exampledocs subdirectory (while Solr is running),
+for example:
 
-See the "example" directory for an example Solr setup.  A tutorial
-using the example setup can be found in "docs/tutorial.html" 
+  cd exampledocs
+  ./post.sh *.xml
 
-
-
-Files Included In Apache Solr Distributions
--------------------------------------------
-
-dist/apache-solr-XX.war
-  The Apache Solr Application.  Deploy this WAR file to any servlet
-  container to run Apache Solr.
-
-dist/apache-solr-XX.jar
-  The Apache Solr Libraries.  This JAR file is needed to compile
-  Apache Solr Plugins (see http://wiki.apache.org/solr/SolrPlugins for
-  more information).
-
-example/
-  A self-contained example Solr instance, complete with a sample
-  configuration, documents to index, and the Jetty Servlet container.
-  Please see example/README.txt for information about running this
-  example.
-
-docs/index.html
-  The contents of the Apache Solr website.
-  
-docs/api/index.html
-  The Apache Solr Javadoc API documentation.
-
-src/
-  The Apache Solr source code.
-
-
-
-Instructions for Building Apache Solr from Source
--------------------------------------------------
-
-1. Download the J2SE 5.0 JDK (Java Development Kit) or later from http://java.sun.com.
-   You will need the JDK installed, and the %JAVA_HOME%\bin directory included
-   on your command path.  To test this, issue a "java -version" command from your
-   shell and verify that the Java version is 5.0 or later.
-
-2. Download the Apache Ant binary distribution from http://ant.apache.org.
-   You will need Ant installed and the %ANT_HOME%\bin directory included on your
-   command path.  To test this, issue a "ant -version" command from your
-   shell and verify that Ant is available.
-
-3. Download the Apache Solr distribution, linked from the above 
-   web site.  Expand the distribution to a folder of your choice, e.g. c:\solr.   
-   Alternately, you can obtain a copy of the latest Apache Solr source code
-   directly from the Subversion repository:
-
-     http://lucene.apache.org/solr/version_control.html
-
-4. Navigate to that folder and issue an "ant" command to see the available options
-   for building, testing, and packaging Solr.
-  
-   NOTE: 
-   To see Solr in action, you may want to use the "ant example" command to build
-   and package Solr into the example/webapps directory. See also example/README.txt.
+See also README.txt in the solr subdirectory, and check
+http://wiki.apache.org/solr/SolrResources for a list of
+tutorials and introductory articles.

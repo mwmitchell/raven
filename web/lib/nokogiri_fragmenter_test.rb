@@ -8,7 +8,7 @@ data = %Q(
   <p>Testing</p>
   <div>
     <pre>
-      <span>should not be in the pb#pb0</span>
+      <span>should be in the pb#pb0</span>
       <pb id="pb1"/>
       <span>should only be for pb1</span>
     	<div id="one">
@@ -64,7 +64,7 @@ expected = [
   <p>Testing</p>
   <div>
     <pre>
-      <span>should not be in the pb#pb0</span>
+      <span>should be in the pb#pb0</span>
       </pre></div></root>
 ',
 '<?xml version="1.0"?>
@@ -152,25 +152,29 @@ expected = [
 '
 ]
 
-#data = File.read('../collections/swinburne/tei-swinburne3.xml')
-
-DATA = data
-EXPECTED = expected
+bm_data = File.read('../collections/swinburne/tei-swinburne3.xml')
 
 require 'benchmark'
 upto = 10
 
-xml = Nokogiri::XML(data)
+xml = Nokogiri::XML(bm_data)
 
 Benchmark.bmbm do |x|
   x.report('fragmenter') do
     upto.times do
+      i=0
       NokogiriFragmenter.fragment(data, 'pb') do |page|
-        
+        puts "page fragment #{i}..."
+        i+=1
       end
     end
   end
 end
+
+#####################################################
+
+DATA = data
+EXPECTED = expected
 
 require 'test/unit'
 
