@@ -1,6 +1,4 @@
 solr/solr/data
 solr/logs/*
 web/log
-web/tmp/pids
-web/tmp/sessions
-web/tmp/sockets
+web/tmp/*
