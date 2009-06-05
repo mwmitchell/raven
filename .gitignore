@@ -1,4 +1,5 @@
-solr/solr/data
+solr/solr/data/*
 solr/logs/*
-web/log
+solr/work/*
+web/log/*
 web/tmp/*
