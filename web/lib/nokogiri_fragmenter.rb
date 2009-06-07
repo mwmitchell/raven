@@ -66,20 +66,22 @@ class NokogiriFragmenter
   
   class << self
     
-    def fragment(source, pattern, &blk)
+    def fragment(source, pattern, use_pre_pattern=false, &blk)
       
       source = Nokogiri::XML(source) if source.is_a?(String)
       
-      # get the first set of nodes before the first fragment
-      first_found = nil
-      source_copy = source.dup
+      if use_pre_pattern
+        # get the first set of nodes before the first fragment
+        first_found = nil
+        source_copy = source.dup
       
-      source_copy.flatten.each do |e|
-        first_found ||= e.name == pattern
-        e.remove if first_found
+        source_copy.flatten.each do |e|
+          first_found ||= e.name == pattern
+          e.remove if first_found
+        end
+      
+        yield source_copy if first_found
       end
-      
-      yield source_copy if first_found
       
       source.search(pattern).each do |snode|
         

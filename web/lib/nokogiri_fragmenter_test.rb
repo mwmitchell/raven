@@ -182,7 +182,7 @@ class NokogiriFramenterTest < Test::Unit::TestCase
   
   def test_expected
     i = 0
-    NokogiriFragmenter.fragment(DATA, 'pb') do |page|
+    NokogiriFragmenter.fragment(DATA, 'pb', true) do |page|
       assert_equal EXPECTED[i], page.to_s
       i += 1
     end
