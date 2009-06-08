@@ -32,20 +32,19 @@ module NokogiriNodeHelpers
   #end
   
   # returns all previous siblings, plus parent previous siblings (recursively)
+  
   def previous_nodes_recursive
-    # if the parent is the document
-    # return an array with only the previous sibling in it
-    # ... then compact (could be nil)
     @pnr ||= (
-      if parent.is_a?(Nokogiri::XML::Document)
-        [previous_sibling].compact
-      else
-        (
-          (parent.previous_nodes_recursive) + 
-          (previous_sibling ? previous_sibling.previous_nodes_recursive : []) + 
-          [previous_sibling]
-        ).flatten.uniq.compact
+      s = []
+      current_n = self
+      while current_n.previous_sibling
+        s << current_n.previous_sibling
+        if current_n.parent
+          s += current_n.parent.previous_nodes_recursive
+        end
+        current_n = current_n.previous_sibling
       end
+      s.uniq
     )
   end
   
@@ -66,20 +65,19 @@ class NokogiriFragmenter
   
   class << self
     
-    def fragment(source, pattern, use_pre_pattern=false, &blk)
+    def fragment(source, pattern, include_first=false, &blk)
       
-      source = Nokogiri::XML(source) if source.is_a?(String)
+      # until I get this path stuff straight, gotta parse twice :(
+      source = source.is_a?(String) ? Nokogiri::XML(source) : Nokogiri::XML(source.to_xml)
       
-      if use_pre_pattern
+      if include_first==true
         # get the first set of nodes before the first fragment
         first_found = nil
         source_copy = source.dup
-      
         source_copy.flatten.each do |e|
           first_found ||= e.name == pattern
           e.remove if first_found
         end
-      
         yield source_copy if first_found
       end
       
@@ -87,27 +85,35 @@ class NokogiriFragmenter
         
         source_copy = source.dup
         
+        #puts "node path: #{snode.path}"
+        
         node = source_copy.at(snode.path)
+        
+        #puts "THE NODE: #{node.to_xml}"
         
         found = nil
         after = nil
         
         node.previous_nodes_recursive.each{|n|n.remove}
         
-        source_copy.flatten.each do |e|
-          
-          # skip the document element
-          next if e == source_copy
+        flattened = source_copy.flatten
+        flattened -= [source_copy]
+        flattened.each do |e|
           
           # have we found the current (first) fragment node?
-          if found.nil? and e.name == node.name
+          if found.nil? and e.path == node.path
+            #puts "found node: #{node.to_xml}"
             found = true
             next
           end
           
           after ||= e.name == node.name
           
-          next unless after
+          #puts "before after"
+          
+          next unless after==true
+          
+          #puts "removing #{e.to_xml}"
           
           e.remove
           

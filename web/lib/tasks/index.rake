@@ -8,12 +8,14 @@ end
 namespace :index do
   
   task :swinburne=>:environment do
+    stime = Time.now
     
     require 'raven'
     
     collection_id = 'swinburne'
     
-    RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
+    #RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
+    RSOLR.delete_by_query("*:*")
     RSOLR.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
@@ -103,6 +105,8 @@ namespace :index do
     end
     
     RSOLR.commit
+    
+    puts "total index time: #{Time.now - stime}"
     
   end
   
