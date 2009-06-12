@@ -27,28 +27,28 @@ module Raven
       end
       
       module Nav
-
+        
         def target_nav
           @target_nav ||= (
             full_nav['children'].last['children'].detect{|i| i['children'].detect{|cc|cc['id'] == self[:id]} }
           )
         end
-
+        
         def full_nav
           @full_nav ||= (
             nav_file = self[:variant_s].to_s.empty? ? '' : '.' + self[:variant_s]
             ActiveSupport::JSON.decode(File.read(NAV_BASE_DIR + "/#{self[:collection_id_s]}#{nav_file}.json"))
           )
         end
-
-        def self.store_nav(nav, name)
+        
+        def self.store!(nav, name)
           file = File.join(NAV_BASE_DIR, name)
           file += ".json"
           File.open(file, File::CREAT|File::TRUNC|File::WRONLY) do |f|
             f.puts nav.to_json
           end
         end
-
+        
       end
       
     end

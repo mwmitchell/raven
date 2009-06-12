@@ -12,9 +12,9 @@ namespace :index do
     
     solr_docs = []
     
-    #RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
-    solr.delete_by_query("*:*")
-    solr.commit
+    #solr.delete_by_query("collection_id_s:\"#{collection_id}\"")
+    #solr.delete_by_query("*:*")
+    #solr.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
       next if f =~ /backup/
@@ -101,7 +101,7 @@ namespace :index do
       solr_docs += root.documents
       
       nav_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
-      Raven::SolrExt::Doc::NAV.store_nav(root.navigation, nav_name)
+      Raven::SolrExt::Doc::Nav.store!(root.navigation, nav_name)
       
     end
     

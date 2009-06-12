@@ -33,12 +33,16 @@ module DocumentsHelper
     end
   end
   
-  # performs an XSLT transform
+  # performs an XSL transform
   def xslt(stylesheet_file_path, document, params={})
     document = Nokogiri::XML(document) if document.is_a?(String)
-    stylesheet = Nokogiri::XSLT.parse(render(stylesheet_file_path))
-    stylesheet.apply_to(Nokogiri::XML(document.to_xml), params)
+    stylesheet = Nokogiri::XSLT render(stylesheet_file_path)
+    stylesheet.transform document
   end
+  
+  #def xslt(stylesheet_file_path, document, params={})
+  #  `java -jar ./lib/saxonb9-1-0-6j/saxon.jar`
+  #end
   
   def build_toc(toc, opts={})
     html = '<ul class="toc">'
