@@ -21,8 +21,9 @@ class DocumentsController < ApplicationController
   end
   
   def show
-    @response = solr.find(:q=>"id:#{params[:id]}")
-    @document = @response.docs.first
+    #@response = solr.find(:q=>"id:#{params[:id]}")
+    #@document = @response.docs.first
+    render :text=>params.inspect
   end
   
   protected

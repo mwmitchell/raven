@@ -12,8 +12,7 @@ namespace :index do
     
     solr_docs = []
     
-    #solr.delete_by_query("collection_id_s:\"#{collection_id}\"")
-    solr.delete_by_query("*:*")
+    solr.delete_by_query("collection_id_s:#{collection_id}*")
     solr.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
@@ -21,11 +20,11 @@ namespace :index do
       
       xml = Nokogiri::XML(open(f))
       fname = File.basename(f)
+      
       variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
       
       shared_fields = {
-        :collection_id_s    => collection_id,
-        :variant_s          => variant_id,
+        :collection_id_s    => [collection_id, variant_id].compact.join('-'),
         :filename_s         => fname,
         :collection_title_s => xml.at('//sourceDesc/citnstruct/title').text,
         :author_s           => xml.at('//citnstruct/author').text,
@@ -37,7 +36,9 @@ namespace :index do
       
       builder = Raven::NavBuilder::Base.new(collection_id, shared_fields)
       
-      root = builder.build(shared_fields[:author_s], variant_id) do |root|
+      root = nil
+      
+      root = builder.build(shared_fields[:author_s], nil) do |root|
         
         root.item 'Document Info', 'info' do |ditem|
           ditem.doc[:xml_s] = xml.at('teiHeader').to_xml
@@ -81,6 +82,9 @@ namespace :index do
                 end
                 
                 page_fragment_index += 1
+                
+                puts root.navigation.inspect
+                exit
                 
               end
               

@@ -1,6 +1,15 @@
 ActionController::Routing::Routes.draw do |map|
   
-  map.resources :documents, :collection=>{:collection_search=>:get}
+  #map.resources :documents, :collection=>{:collection_search=>:get}
+  
+  #map.with_options :controller=>'documents' do |dmap|
+  #  dmap.documents 'documents', :action=>'index'
+  #  dmap.document 'documents/:id/:fragment_id', :action=>'index', :fragment_id=>/[0-9]?/i
+  #end
+  
+  map.documents 'documents', :controller=>'documents', :action=>'index'
+  map.document 'documents/:id/:fragment', :controller=>'documents', :action=>'show'
+  
   map.root :controller=>'documents', :action=>'index'
   
   # The priority is based upon order of creation: first created -> highest priority.

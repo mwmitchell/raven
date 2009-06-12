@@ -145,20 +145,20 @@ module Raven
       # "label" is the "UI" label for the node in the navigation tree
       # "doc" is the hash document that is included in the #documents array
       attr_reader :label, :doc, :opts
-
+      
       # "key" single fragment identifier for this node
       attr_accessor :key
-
+      
       # the absolute unique id of this node in context of the entire tree
       attr_accessor :id
-
+      
       # "base" is a NavBuilder::Base object
       attr :base
       # "parent" is an Item object
       attr :parent
       # "children" is an array of Item objects
       attr :children
-
+      
       # "base" is an instance of NavBuilder::Base
       # "label" is a string to represent this node in the tree
       # "key" is a value used to reprent this item and its document
@@ -245,6 +245,85 @@ module Raven
 
     end
 
+  end
+  
+  #######################
+  
+  #
+  # simplified navigation builder
+  #
+  module Navigation
+
+    module Build
+
+      class Item
+
+        attr :builder
+        attr_reader :id, :opts, :parent
+
+        def initialize(builder, id, opts={}, parent=nil, &blk)
+          @builder = builder
+          @id = id
+          @opts = opts
+          if parent
+            @parent = parent
+            parent.children << self
+          end
+        end
+
+        def children
+          @children ||= []
+        end
+
+        def item(*args, &blk)
+          # create an id based on the size of the "items" array
+          args.unshift(builder.items.size) if args.size == 0 || args.first.class==Hash
+          # push on the opts hash if it's not present
+          args << {} if args.last.class != Hash
+          # add the parent (self)
+          args << self
+          # unshift the self.builder instance as the first argument
+          args.unshift self.builder
+          # push the item on to the builder's items list
+          self.builder.items << self.class.new(*args)
+          # yield!
+          yield self.builder.items.last if block_given?
+          # make sure the id is globally uniqe
+          ids = self.builder.ids
+          raise "ID (#{self.id}) is not unique!" if ids != ids.uniq
+        end
+
+        # exports a simple hash/array tree
+        def export
+          {
+            :id => self.id,
+            :opts => self.opts,
+            :children => self.children.map{|child| child.export }
+          }
+        end
+
+      end
+
+      class R
+
+        def items
+          @items ||= []
+        end
+
+        def build(opts={}, &blk)
+          root = Item.new(self, nil, opts, nil)
+          yield root
+          root
+        end
+        
+        def ids
+          self.items.map{|i|i.id}
+        end
+        
+      end
+      
+    end
+    
   end
   
 end

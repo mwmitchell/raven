@@ -17,7 +17,7 @@
 	      </div>
 	    <% end %>
 	<% else %>
-		<%= truncate doc[:xml_t], 200 %> <%= link_to 'view', document_path(doc[:id]) %>
+		<%= truncate doc[:xml_t], 200 %> <%= link_to 'view', document_path(doc[:collection_id_s], doc[:id]) %>
 	<% end %>
   </div>
 <% end %>
