@@ -18,6 +18,11 @@ Add serialization and fetching to Raven::Navigation ->
 	navigation = root.locate(params[:fragment_id])
 	@document = solr.find_by_id navigation.opts['solr_id']
 
+ID's
+	Should solr docs know about nav node ids?
+	Should nav nodes know about solr doc ids?
+	Should nav node ids and solr doc ids always be the same?
+
 Allow blank variant_id (copy of a book, for example), navigation id's are getting "swinburne--poems" instead of "sunwburne-poems"
 	This is a bug in NavBuilder (check for empty values before joining or compact the array)
 
