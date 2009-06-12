@@ -3,17 +3,28 @@ DONE - Change references to "toc" to "nav" or "navigation"
 	rake tasks
 	etc.
 
+Implement richer navigation model
+	each node should know about its parent
+		parse json into composite object?
+	remove first_child code?
+		allow id to not be present in arg list, opts default to last if hash
+		instead, if nav node doesn't have id, get first child's id etc.?
+		-- handle this logic in view helper?
+
 Allow blank variant_id (copy of a book, for example), navigation id's are getting "swinburne--poems" instead of "sunwburne-poems"
-	This is a bug in NavBuilder (check for empty values before joining)
+	This is a bug in NavBuilder (check for empty values before joining or compact the array)
 
 Solidify generic Solr schema -- don't use dynamic fields?
 
-Break up Raven module into standard Ruby gem directory structure
+Break-up Raven module into standard Ruby gem directory structure
 
 Various export formats for document details view
+	juxta, pdf, text-only etc.
 
 Bring back JS text diff plugin
 
-Bug in view code -- navigation is now hash (single node root) instead of array
+DONE - Bug in view code -- navigation is now hash (single node root) instead of array
 
-xslt transform failing in details view
+DONE - xslt transform failing in details view
+	switched to saxon (temporary)
+		Nokogiri doing some weird stuff
