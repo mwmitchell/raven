@@ -36,20 +36,12 @@
 		
 		<h3>browse this collection:</h3>
 		
-		<%= nav_options_for_select(@document.full_nav) %>
-		
-<%
-=begin
-%>
-	    <select id="sectionSelect">
+		<select id="sectionSelect">
 			<% @document.full_nav['children'].last['children'].each do |item| %>
 	        	<option value="<%= document_path(item['id'], :q=>params[:q]) %>" <%= 'selected="selected"' if params[:id] == item['id'] or item['children'].any?{|c|c['id'] == params[:id]} %>"><%= h item['label'] %></option>
 	      <% end %>
 	    </select>
-<%
-=end
-%>
-
+		
 		<h3>search this collection:</h3>
 		<% form_tag collection_search_documents_path, {:method=>:get, :id=>'collectionSearch'} do %>
 			<% facet_fields.each do |ff| %>
@@ -67,21 +59,19 @@
 		
 		
 		<hr/>
-<%
-=begin
-%>
-		<% if @document.target_nav %>
-			<% @document.target_nav['children'].each do |item| %>
+		
+		<% if target = @document.target_nav %>
+			<% target['children'].each do |item| %>
 				<strong><%= link_to_unless_current item['label'], document_path(item['id'], :q=>params[:q]) %></strong> | 
 			<% end %>
 		<% end %>
+		
 		<hr/>
-<%
-=end
-%>		
 		
 		<div class="documentBody">
-			<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+			<% cache do %>
+				<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+			<% end %>
 		</div>
 		
 	</div>

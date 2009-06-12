@@ -28,18 +28,51 @@ module Raven
       
       module Nav
         
+        # ActiveSupport::JSON doesn't like embedded quotes
+        # the JSON gem doesn't mind...
+        require 'json'
+        
+        module Flatten
+          
+          def self.extended(b)
+            b['children'].each{|child| child.extend Flatten }
+          end
+          
+          def flatten
+            [self] + self['children'].map{|child| child.flatten }.flatten
+          end
+          
+        end
+        
+        # collects all nodes that have children with the same id as this doc
+        # returns the last one
         def target_nav
           @target_nav ||= (
-            full_nav['children'].last['children'].detect{|i| i['children'].detect{|cc|cc['id'] == self[:id]} }
+            self.full_nav.flatten.select{|d|d['children'].any?{|c|c['id'] == self[:id]}}.last
           )
         end
         
         def full_nav
           @full_nav ||= (
             nav_file = self[:variant_s].to_s.empty? ? '' : '.' + self[:variant_s]
-            ActiveSupport::JSON.decode(File.read(NAV_BASE_DIR + "/#{self[:collection_id_s]}#{nav_file}.json"))
+            json_nav = File.read(NAV_BASE_DIR + "/#{self[:collection_id_s]}#{nav_file}.json")
+            hash = ::JSON.parse(json_nav)
+            hash.extend Flatten
+            hash
           )
         end
+        
+        #def self.to_html(nav)
+        #  html += '<ul>'
+        #  html += '<li>' + nav['label']
+        #  unless nav['children'].empty?
+        #    nav['children'].each do |child|
+        #      html += to_html(child)
+        #    end
+        #  end
+        #  html += '</li>'
+        #  html += '</ul>'
+        #end
         
         def self.store!(nav, name)
           file = File.join(NAV_BASE_DIR, name)
@@ -135,23 +168,34 @@ module Raven
         yield i if (block_given? or opts[:first_child]) # will raise error if first_child and no block present
         i
       end
-
+      
       # returns a simple hash tree
       # the :id key is set to the value of absolute_id OR
       # the value of the first child if the :first_child option is true
-      def navigation
-        {
-          :label => self.label,
-          :id => (self.opts[:first_child]==true ? self.children.first.absolute_id : self.absolute_id),
-          :children => self.children.map{|child| child.navigation }
-        }
+      def navigation(parent=nil)
+        d = {:label => self.label}
+        d[:id] = (
+          if self.opts[:first_child]==true
+            self.children.first.absolute_id
+          else
+            self.absolute_id
+          end
+        )
+        d[:children] = (
+          self.children.map do |child|
+            child.navigation(self)
+          end
+        )
+        # sync the id if the first_child opt is true
+        d[:id] = d[:children].first[:id] if self.opts[:first_child] == true
+        d
       end
-
+      
       # returns the full id with the self.base.name prepended
       def absolute_id
         [self.base.name, self.id].join('-')
       end
-
+      
       # returns an array of hash documents
       def documents
         d = nil

@@ -13,8 +13,8 @@ namespace :index do
     solr_docs = []
     
     #solr.delete_by_query("collection_id_s:\"#{collection_id}\"")
-    #solr.delete_by_query("*:*")
-    #solr.commit
+    solr.delete_by_query("*:*")
+    solr.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
       next if f =~ /backup/

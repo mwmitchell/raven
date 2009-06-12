@@ -11,3 +11,7 @@ body{
 #hd h1{
 	margin:0;
 }
+
+.documentDetails .left ul.nav{
+	margin-left:1em;
+}
