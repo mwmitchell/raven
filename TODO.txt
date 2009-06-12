@@ -1,4 +1,4 @@
-Change references to "toc" to "nav" or "navigation"
+DONE - Change references to "toc" to "nav" or "navigation"
 	cache dir
 	rake tasks
 	etc.

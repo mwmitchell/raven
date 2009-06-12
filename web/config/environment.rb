@@ -40,13 +40,9 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
   
   config.gem 'mwmitchell-rsolr', :lib=>'rsolr', :version=>'0.8.8'
-  config.gem 'mwmitchell-rsolr-ext', :lib=>'rsolr-ext', :version=>'0.7.2'
+  config.gem 'mwmitchell-rsolr-ext', :lib=>'rsolr-ext', :version=>'0.7.35'
   config.gem 'mislav-will_paginate', :lib=>'will_paginate'
   
   config.gem 'nokogiri'
   
 end
-
-RSOLR = RSolr::Ext.connect
-require 'curb'
-RSOLR.adapter.connector.adapter_name = :curb

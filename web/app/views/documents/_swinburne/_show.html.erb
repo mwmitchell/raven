@@ -8,9 +8,10 @@
 				window.location = $(this).val();
 			});
 			
-			<% rules = /[\w\s.0-9_-]+/ %>
-			<% if params[:q] =~ rules %>
-			$('.documentBody').highlight("<%= params[:q].scan(rules).first %>")
+			<%
+			rules = /[\w\s.0-9_-]+/
+			if params[:q] =~ rules %>
+				$('.documentBody').highlight("<%= params[:q].scan(rules).first %>")
 			<% end %>
 			
 			//
@@ -34,6 +35,8 @@
 	<div class="left toc">
 		
 		<h3>browse this collection:</h3>
+		
+		<%= nav_options_for_select(@document.full_toc) %>
 		
 	    <select id="sectionSelect">
 			<% @document.full_toc['children'].last['children'].each do |item| %>
@@ -65,8 +68,7 @@
 		
 		
 		<div class="documentBody">
-			<% # xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
-			<%= @document[:xml_s] %>
+			<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
 		</div>
 		
 	</div>

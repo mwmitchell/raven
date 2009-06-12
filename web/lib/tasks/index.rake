@@ -1,22 +1,20 @@
-def error!(msg)
-  puts "
-  *** #{msg}
-  "
-  exit
-end
-
 namespace :index do
   
   task :swinburne=>:environment do
+    
+    solr = Raven.solr
+    
     stime = Time.now
     
     require 'raven'
     
     collection_id = 'swinburne'
     
+    solr_docs = []
+    
     #RSOLR.delete_by_query("collection_id_s:\"#{collection_id}\"")
-    RSOLR.delete_by_query("*:*")
-    RSOLR.commit
+    solr.delete_by_query("*:*")
+    solr.commit
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
       next if f =~ /backup/
@@ -70,6 +68,7 @@ namespace :index do
                 
                 pb = page_fragment.at('pb')
                 
+                # the page number label
                 page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
                 
                 poem.item page_num, page_fragment_index do |poem_page|
@@ -93,18 +92,21 @@ namespace :index do
       
       puts "
       
-      ***** processed #{root.documents.size} documents
+      *****
+      ***** processed #{root.documents.size} documents in #{Time.now - stime}
+      *****
       
       "
       
-      RSOLR.add root.documents
+      solr_docs += root.documents
       
-      toc_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
-      Raven::DocExt::TOC.store_toc(root.navigation, toc_name)
+      nav_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
+      Raven::SolrExt::Doc::NAV.store_nav(root.navigation, nav_name)
       
     end
     
-    RSOLR.commit
+    solr.add solr_docs
+    solr.commit
     
     puts "total index time: #{Time.now - stime}"
     

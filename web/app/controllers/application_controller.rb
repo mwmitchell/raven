@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   protected
   
   def solr
-    @solr ||= RSOLR
+    @solr ||= Raven.solr
   end
   
 end

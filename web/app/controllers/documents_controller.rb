@@ -23,7 +23,6 @@ class DocumentsController < ApplicationController
   def show
     @response = solr.find(:q=>"id:#{params[:id]}")
     @document = @response.docs.first
-    @document.extend Raven::DocExt::TOC
   end
   
   protected
