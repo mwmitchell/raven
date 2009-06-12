@@ -37,7 +37,7 @@ namespace :index do
       
       builder = Raven::NavBuilder::Base.new(collection_id, shared_fields)
       
-      root = builder.build(shared_fields[:author_s], variant_id, :first_child=>true) do |root|
+      root = builder.build(shared_fields[:author_s], variant_id) do |root|
         
         root.item 'Document Info', 'info' do |ditem|
           ditem.doc[:xml_s] = xml.at('teiHeader').to_xml
@@ -45,7 +45,7 @@ namespace :index do
         end
         
         # swinburne-CW-poems
-        root.item 'Poems', 'poems', :first_child=>true do |poems|
+        root.item 'Poems', nil do |poems|
           
           # loop through each poem "text" node
           xml.search('//text').each_with_index do |text,poem_index|
@@ -58,7 +58,7 @@ namespace :index do
             
             # a poem main navigation-item and document
             # set the label of this nav item to the @n attribute
-            poems.item poem_title, poem_index, :first_child=>true do |poem|
+            poems.item poem_title, poem_index do |poem|
               
               page_fragment_index = 0
               

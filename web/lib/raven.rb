@@ -28,6 +28,21 @@ module Raven
       
       module Nav
         
+        module Contextual
+          def self.extended(b)
+            b['children'].each do |child|
+              child.extend Contextual
+              child.parent = b
+            end
+          end
+          def parent=(p)
+            @parent = parent
+          end
+          def parent
+            @parent
+          end
+        end
+        
         # ActiveSupport::JSON doesn't like embedded quotes
         # the JSON gem doesn't mind...
         require 'json'
@@ -58,6 +73,7 @@ module Raven
             json_nav = File.read(NAV_BASE_DIR + "/#{self[:collection_id_s]}#{nav_file}.json")
             hash = ::JSON.parse(json_nav)
             hash.extend Flatten
+            hash.extend Contextual
             hash
           )
         end
@@ -158,7 +174,7 @@ module Raven
         @children = []
         @id = generate_id
       end
-
+      
       # creates a child node
       # yields the child instance
       # returns the child instance
@@ -172,23 +188,12 @@ module Raven
       # returns a simple hash tree
       # the :id key is set to the value of absolute_id OR
       # the value of the first child if the :first_child option is true
-      def navigation(parent=nil)
-        d = {:label => self.label}
-        d[:id] = (
-          if self.opts[:first_child]==true
-            self.children.first.absolute_id
-          else
-            self.absolute_id
-          end
-        )
-        d[:children] = (
-          self.children.map do |child|
-            child.navigation(self)
-          end
-        )
-        # sync the id if the first_child opt is true
-        d[:id] = d[:children].first[:id] if self.opts[:first_child] == true
-        d
+      def navigation
+        {
+          :label => self.label,
+          :id => self.absolute_id,
+          :children => self.children.map{|child| child.navigation}
+        }
       end
       
       # returns the full id with the self.base.name prepended
@@ -198,14 +203,11 @@ module Raven
       
       # returns an array of hash documents
       def documents
-        d = nil
-        unless self.opts[:first_child]
-          d = self.doc.dup
-          d[:id] = self.absolute_id
-        end
+        d = self.doc.dup
+        d[:id] = self.absolute_id
         ([d] + self.children.map{|child| child.documents }.flatten).compact
       end
-
+      
       protected
 
       # called when the #navigation and/or #documents method is called
@@ -219,11 +221,11 @@ module Raven
         items << self.key
         items.join('-')
       end
-
+      
     end
-
+    
     class Base
-
+      
       # "name" is the base id value for documents and tree nodes
       # "base_doc" is a hash that serves as the shared data for all documents
       # "root" is the root node, instance of Item
@@ -233,7 +235,7 @@ module Raven
         @name = name
         @base_doc = base_doc
       end
-
+      
       # yields the "root" Item instance
       def build(label, key, opts={}, &blk)
         @root = Item.new(self, label, key, opts)
