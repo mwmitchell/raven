@@ -8,7 +8,13 @@ namespace :index do
     
     require 'raven'
     
-    collection_id = 'swinburne'
+    def collection_id
+      'swinburne'
+    end
+    
+    def generate_id(*args)
+      ([collection_id] + args).reject{|v|v.to_s.empty?}.join('-')
+    end
     
     solr_docs = []
     
@@ -23,7 +29,7 @@ namespace :index do
       
       variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
       
-      shared_fields = {
+      base_solr_doc = {
         :collection_id_s    => [collection_id, variant_id].compact.join('-'),
         :filename_s         => fname,
         :collection_title_s => xml.at('//sourceDesc/citnstruct/title').text,
@@ -34,19 +40,23 @@ namespace :index do
         :date_s             => xml.at('//citnstruct/imprint/date').text
       }
       
-      builder = Raven::NavBuilder::Base.new(collection_id, shared_fields)
+      navigation = Raven::Navigation::Build::R.new
       
-      root = nil
-      
-      root = builder.build(shared_fields[:author_s], nil) do |root|
+      root = navigation.build do |root_nav|
         
-        root.item 'Document Info', 'info' do |ditem|
-          ditem.doc[:xml_s] = xml.at('teiHeader').to_xml
-          ditem.doc[:xml_t] = xml.at('teiHeader').text
+        root_nav.opts[:label] = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
+        
+        root_nav.item :label=>'Document Info' do |doc_info_nav|
+          info_solr_doc = base_solr_doc.dup
+          info_solr_doc[:id] = generate_id(variant_id, doc_info_nav.id)
+          info_solr_doc[:xml_s] = xml.at('teiHeader').to_xml
+          info_solr_doc[:xml_t] = xml.at('teiHeader').text
+          solr_docs << info_solr_doc
+          doc_info_nav.opts[:solr_id] = info_solr_doc[:id]
         end
         
         # swinburne-CW-poems
-        root.item 'Poems', nil do |poems|
+        root_nav.item :label=>'Poems' do |poems_nav|
           
           # loop through each poem "text" node
           xml.search('//text').each_with_index do |text,poem_index|
@@ -57,11 +67,7 @@ namespace :index do
             ** processing a new poem... #{poem_title}
             "
             
-            # a poem main navigation-item and document
-            # set the label of this nav item to the @n attribute
-            poems.item poem_title, poem_index do |poem|
-              
-              page_fragment_index = 0
+            poems_nav.item :label=>poem_title do |poem_nav|
               
               NokogiriFragmenter.fragment(text, 'pb') do |page_fragment|
                 
@@ -72,19 +78,17 @@ namespace :index do
                 # the page number label
                 page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
                 
-                poem.item page_num, page_fragment_index do |poem_page|
-                  poem_page.doc.merge!({
+                poem_nav.item :label=>page_num do |poem_page_nav|
+                  poem_page_solr_doc = base_solr_doc.dup.merge({
                     :title      => text['n'],
                     :title_s    => text['n'],
                     :xml_s      => page_fragment.to_xml,
                     :xml_t      => page_fragment.text
                   })
+                  poem_page_solr_doc[:id] = generate_id(variant_id, poem_page_nav.id)
+                  solr_docs << poem_page_solr_doc
+                  poem_page_nav.opts[:solr_id] = poem_page_solr_doc[:id]
                 end
-                
-                page_fragment_index += 1
-                
-                puts root.navigation.inspect
-                exit
                 
               end
               
@@ -92,20 +96,19 @@ namespace :index do
           end
           #
         end
+        
       end
       
       puts "
       
       *****
-      ***** processed #{root.documents.size} documents in #{Time.now - stime}
+      ***** processed #{solr_docs.size} documents in #{Time.now - stime}
       *****
       
       "
       
-      solr_docs += root.documents
-      
       nav_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
-      Raven::SolrExt::Doc::Nav.store!(root.navigation, nav_name)
+      Raven::SolrExt::Doc::Nav.store!(root.export, nav_name)
       
     end
     

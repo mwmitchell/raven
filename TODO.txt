@@ -3,13 +3,20 @@ DONE - Change references to "toc" to "nav" or "navigation"
 	rake tasks
 	etc.
 
-Implement richer navigation model
+DONE - Implement richer navigation model
 	each node should know about its parent
 		parse json into composite object?
 	remove first_child code?
 		allow id to not be present in arg list, opts default to last if hash
 		instead, if nav node doesn't have id, get first child's id etc.?
 		-- handle this logic in view helper?
+
+
+Add serialization and fetching to Raven::Navigation ->
+	Raven::Navigation.store!
+	root = Raven::Navigation.fetch('swinburne-CW')
+	navigation = root.locate(params[:fragment_id])
+	@document = solr.find_by_id navigation.opts['solr_id']
 
 Allow blank variant_id (copy of a book, for example), navigation id's are getting "swinburne--poems" instead of "sunwburne-poems"
 	This is a bug in NavBuilder (check for empty values before joining or compact the array)
