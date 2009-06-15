@@ -1,5 +1,58 @@
 namespace :index do
+ 
+ task :swinburne=>:environment do
+   
+   def collection_id; 'swinburne' end
+   
+   require 'raven'
+   Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
+     next if f =~ /backup/
+     puts "\n\t** file: #{f}\n"
+     xml = Nokogiri::XML open(f)
+     fname = File.basename f
+     variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
+     #
+     #
+     base_solr_doc = {
+       :collection_id_s    => [collection_id, variant_id].compact.join('-'),
+       :filename_s         => fname,
+       :collection_title_s => xml.at('//sourceDesc/citnstruct/title').text,
+       :author_s           => xml.at('//citnstruct/author').text,
+       :publisher_t        => xml.at('//citnstruct/imprint/publisher').text,
+       :printer_t          => xml.at('//citnstruct/imprint/printer').text,
+       :city_t             => xml.at('//citnstruct/imprint/city').text,
+       :date_s             => xml.at('//citnstruct/imprint/date').text
+     }
+     #
+     #
+     root_label = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
+     navigation = Raven::Navigation::Builder.build(root_label) do |root_nav|
+       # document info...
+       root_nav.item 'Document Info', :xml=>xml.at('teiHeader').to_xml
+       # all poems...
+       root_nav.item 'Poems' do |poems_nav|
+         xml.search('//text').each do |text|
+           poem_title = text['n'].nil? ? 'n/a' : text['n']
+           puts "\n** processing new poem... #{poem_title}\n"
+           # a poem...
+           poems_nav.item poem_title, :xml=>text do |poem_nav|
+             # individual pages ....
+             NokogiriFragmenter.fragment(text, 'pb') do |page_fragment|
+               pb = page_fragment.at('pb')
+               # the page number label
+               page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
+               poem_nav.item page_num, :xml=>pb
+               puts "..."
+             end # end fragmenter
+           end # and poem nav item
+         end # end search("//text")
+       end # end poems nav
+     end # end Builder.build
+   end # end files loop
+   
+ end
   
+=begin
   task :swinburne=>:environment do
     
     solr = Raven.solr
@@ -116,5 +169,5 @@ namespace :index do
     puts "total index time: #{Time.now - stime}"
     
   end
-  
+=end
 end
