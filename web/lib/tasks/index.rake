@@ -24,8 +24,8 @@ namespace :index do
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
       next if f =~ /backup/
       
-      xml = Nokogiri::XML(open(f))
-      fname = File.basename(f)
+      xml = Nokogiri::XML open(f)
+      fname = File.basename f
       
       variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
       
@@ -42,11 +42,10 @@ namespace :index do
       
       navigation = Raven::Navigation::Build::R.new
       
-      root = navigation.build do |root_nav|
+      root_label = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
+      root = navigation.build root_label do |root_nav|
         
-        root_nav.opts[:label] = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
-        
-        root_nav.item :label=>'Document Info' do |doc_info_nav|
+        root_nav.item 'Document Info' do |doc_info_nav|
           info_solr_doc = base_solr_doc.dup
           info_solr_doc[:id] = generate_id(variant_id, doc_info_nav.id)
           info_solr_doc[:xml_s] = xml.at('teiHeader').to_xml
@@ -55,8 +54,7 @@ namespace :index do
           doc_info_nav.opts[:solr_id] = info_solr_doc[:id]
         end
         
-        # swinburne-CW-poems
-        root_nav.item :label=>'Poems' do |poems_nav|
+        root_nav.item 'Poems' do |poems_nav|
           
           # loop through each poem "text" node
           xml.search('//text').each_with_index do |text,poem_index|
@@ -67,7 +65,7 @@ namespace :index do
             ** processing a new poem... #{poem_title}
             "
             
-            poems_nav.item :label=>poem_title do |poem_nav|
+            poems_nav.item poem_title do |poem_nav|
               
               NokogiriFragmenter.fragment(text, 'pb') do |page_fragment|
                 
@@ -78,7 +76,7 @@ namespace :index do
                 # the page number label
                 page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
                 
-                poem_nav.item :label=>page_num do |poem_page_nav|
+                poem_nav.item page_num do |poem_page_nav|
                   poem_page_solr_doc = base_solr_doc.dup.merge({
                     :title      => text['n'],
                     :title_s    => text['n'],

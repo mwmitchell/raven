@@ -12,6 +12,32 @@ DONE - Implement richer navigation model
 		-- handle this logic in view helper?
 
 
+Check out - http://www.railsinside.com/plugins/164-7-tree-data-structure-plugins-for-rails.html
+	
+	DocMeta.find(:document_id=>'swinburne').each{|d|d.destroy}
+	
+	xml = Nokogiri::XML open('swinburne.xml')
+	
+	dm = DocMeta.new(:document_id=>'swinburne', :label=>'Swinburne')
+	dm.item 'Info', xml.at('teiHeader').to_xml, :type=>:xml
+	dm.item 'Poems' do |poems_meta|
+		xml.search('//text').each do |poem_xml|
+			poems_meta.item poem_xml['n'] do |poem_meta|
+				Raven::XML::Fragmenter.fragment(poem_xml, 'pb') do |fragment|
+					poem_meta.item fragment['n'], fragment.to_xml, :type=>:xml
+				end
+			end
+		end
+	end
+	
+	dm.flatten.select{|i|i.type==:xml}.each do |item|
+		solr_doc = {
+			:id=>"#{item.document_id}-#{item.id}",
+			:text=>Nokogiri::XML(item.value).text,
+			:author_s => xml.at('//author').text
+		}
+	end
+	
 Add serialization and fetching to Raven::Navigation ->
 	Raven::Navigation.store!
 	root = Raven::Navigation.fetch('swinburne-CW')
