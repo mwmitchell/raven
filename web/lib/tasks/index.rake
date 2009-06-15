@@ -1,90 +1,31 @@
 namespace :index do
- 
- task :swinburne=>:environment do
-   
-   def collection_id; 'swinburne' end
-   
-   require 'raven'
-   Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
-     next if f =~ /backup/
-     puts "\n\t** file: #{f}\n"
-     xml = Nokogiri::XML open(f)
-     fname = File.basename f
-     variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
-     #
-     #
-     base_solr_doc = {
-       :collection_id_s    => [collection_id, variant_id].compact.join('-'),
-       :filename_s         => fname,
-       :collection_title_s => xml.at('//sourceDesc/citnstruct/title').text,
-       :author_s           => xml.at('//citnstruct/author').text,
-       :publisher_t        => xml.at('//citnstruct/imprint/publisher').text,
-       :printer_t          => xml.at('//citnstruct/imprint/printer').text,
-       :city_t             => xml.at('//citnstruct/imprint/city').text,
-       :date_s             => xml.at('//citnstruct/imprint/date').text
-     }
-     #
-     #
-     root_label = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
-     navigation = Raven::Navigation::Builder.build(root_label) do |root_nav|
-       # document info...
-       root_nav.item 'Document Info', :xml=>xml.at('teiHeader').to_xml
-       # all poems...
-       root_nav.item 'Poems' do |poems_nav|
-         xml.search('//text').each do |text|
-           poem_title = text['n'].nil? ? 'n/a' : text['n']
-           puts "\n** processing new poem... #{poem_title}\n"
-           # a poem...
-           poems_nav.item poem_title, :xml=>text do |poem_nav|
-             # individual pages ....
-             NokogiriFragmenter.fragment(text, 'pb') do |page_fragment|
-               pb = page_fragment.at('pb')
-               # the page number label
-               page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
-               poem_nav.item page_num, :xml=>pb
-               puts "..."
-             end # end fragmenter
-           end # and poem nav item
-         end # end search("//text")
-       end # end poems nav
-     end # end Builder.build
-   end # end files loop
-   
- end
   
-=begin
   task :swinburne=>:environment do
     
-    solr = Raven.solr
-    
-    stime = Time.now
+    def collection_id; 'swinburne' end
     
     require 'raven'
     
-    def collection_id
-      'swinburne'
-    end
-    
-    def generate_id(*args)
-      ([collection_id] + args).reject{|v|v.to_s.empty?}.join('-')
-    end
-    
     solr_docs = []
-    
-    solr.delete_by_query("collection_id_s:#{collection_id}*")
-    solr.commit
+    nav_items = {}
     
     Raven.app_dir_contents('collections', collection_id, '*.xml').each do |f|
+      # skip the backup file
       next if f =~ /backup/
-      
+      puts "\n\t** file: #{f}\n"
+      # create the xml object
       xml = Nokogiri::XML open(f)
+      # grab the basename from the file
       fname = File.basename f
-      
+      # create the variant_id (the book "copy") from the fname
       variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
-      
+      #
+      #
+      # A base solr doc that all solr docs "inherit" from
       base_solr_doc = {
         :collection_id_s    => [collection_id, variant_id].compact.join('-'),
         :filename_s         => fname,
+        :variant_s          => variant_id,
         :collection_title_s => xml.at('//sourceDesc/citnstruct/title').text,
         :author_s           => xml.at('//citnstruct/author').text,
         :publisher_t        => xml.at('//citnstruct/imprint/publisher').text,
@@ -92,82 +33,69 @@ namespace :index do
         :city_t             => xml.at('//citnstruct/imprint/city').text,
         :date_s             => xml.at('//citnstruct/imprint/date').text
       }
-      
-      navigation = Raven::Navigation::Build::R.new
-      
+      #
+      #
+      #
+      # The following section basically builds a navigation structure
+      # and associates the solr docs to each of the nodes in the navigation
+      # hierarchy. The navigation (hash/arrays) is stored as json,
+      # and later rendered into the web app, at which point it has
+      # access to all of the associated solr doc ids.
       root_label = "#{base_solr_doc[:collection_title_s]} by #{base_solr_doc[:author_s]}"
-      root = navigation.build root_label do |root_nav|
-        
-        root_nav.item 'Document Info' do |doc_info_nav|
-          info_solr_doc = base_solr_doc.dup
-          info_solr_doc[:id] = generate_id(variant_id, doc_info_nav.id)
-          info_solr_doc[:xml_s] = xml.at('teiHeader').to_xml
-          info_solr_doc[:xml_t] = xml.at('teiHeader').text
-          solr_docs << info_solr_doc
-          doc_info_nav.opts[:solr_id] = info_solr_doc[:id]
+      # The navigation builder instance
+      navigation_builder = Raven::Navigation::Builder.new(:prefix=>base_solr_doc[:collection_id_s])
+      # The root navigation node (display title and author)
+      navigation_builder.build(root_label) do |root_nav|
+        # creeate a document info navigation node... (teiHeader)
+        root_nav.item 'Document Info' do |doc_nav|
+          solr_docs << base_solr_doc.merge({
+            :id => doc_nav.id,
+            :xml_s => xml.at('teiHeader').to_xml,
+            :xml_t => xml.at('teiHeader').text
+          })
         end
-        
+        # all poems...
         root_nav.item 'Poems' do |poems_nav|
-          
-          # loop through each poem "text" node
-          xml.search('//text').each_with_index do |text,poem_index|
-            
+          # find each "text" element
+          xml.search('//text').each do |text|
+            # create a title for the poem
             poem_title = text['n'].nil? ? 'n/a' : text['n']
-            
-            puts "
-            ** processing a new poem... #{poem_title}
-            "
-            
+            puts "\n** processing new poem... #{poem_title}\n"
+            # create a poem navigation node...
             poems_nav.item poem_title do |poem_nav|
-              
+              # individual pages broken up by tei pb tags....
               NokogiriFragmenter.fragment(text, 'pb') do |page_fragment|
-                
-                puts 'processing a page fragment...'
-                
                 pb = page_fragment.at('pb')
-                
                 # the page number label
                 page_num = pb ? page_fragment.at('pb')['n'].scan(/[0-9]+/).first : 'n/a'
-                
-                poem_nav.item page_num do |poem_page_nav|
-                  poem_page_solr_doc = base_solr_doc.dup.merge({
-                    :title      => text['n'],
-                    :title_s    => text['n'],
-                    :xml_s      => page_fragment.to_xml,
-                    :xml_t      => page_fragment.text
+                # the page break navigation element...
+                poem_nav.item page_num do |poem_item_nav|
+                  # the actual page break solr document
+                  solr_docs << base_solr_doc.merge({
+                    :id => poem_item_nav.id,
+                    :xml_s => xml.at('teiHeader').to_xml,
+                    :xml_t => xml.at('teiHeader').text
                   })
-                  poem_page_solr_doc[:id] = generate_id(variant_id, poem_page_nav.id)
-                  solr_docs << poem_page_solr_doc
-                  poem_page_nav.opts[:solr_id] = poem_page_solr_doc[:id]
                 end
-                
-              end
-              
-            end
-          end
-          #
-        end
-        
-      end
+                puts "..."
+              end # end fragmenter
+            end # and poem nav item
+          end # end search("//text") (each poem)
+        end # end poems nav
+      end # end Builder.build
       
-      puts "
+      # store the navigation data for this file, in the nav_items hash...
+      nav_items[base_solr_doc[:collection_id_s]] = navigation_builder.export
       
-      *****
-      ***** processed #{solr_docs.size} documents in #{Time.now - stime}
-      *****
-      
-      "
-      
-      nav_name = [collection_id, variant_id].reject{|i|i.to_s.empty?}.join('.')
-      Raven::SolrExt::Doc::Nav.store!(root.export, nav_name)
-      
-    end
+    end # end files loop
     
-    solr.add solr_docs
-    solr.commit
+    # store the json navigation data for each file indexed...
+    nav_items.each {|k,v| Raven::Navigation.dump(v, k) }
     
-    puts "total index time: #{Time.now - stime}"
+    Raven.solr.delete_by_query("collection_id_s:#{collection_id}*")
+    Raven.solr.add solr_docs
+    Raven.solr.commit
     
   end
-=end
+  
 end

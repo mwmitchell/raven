@@ -56,7 +56,8 @@ module Raven
     require 'json'
     
     mattr_accessor :base_dir
-    @base_dir = Raven.app_path('tmp', 'cache', 'nav')
+    
+    self.base_dir = Raven.app_path('tmp', 'cache', 'nav')
     
     def self.dump(nav, name)
       raise "Navigation object can only be a Hash" unless nav.class==Hash
@@ -156,28 +157,65 @@ module Raven
     
     #
     # Helper module for building and exporting hierarchical navigation structures
-    #
-    module Builder
+    # Automatically creates ids
+    #   - can set an id prefix by passing in :prefix=>'some_value'
+    # Example:
+    # b = Raven::Navigation.builder(:prefix=>'abc')
+    # b.build do 'Root' do |r|
+    #   r.item 'An item' do |item1|
+    #     item1.item 'A sub-item'
+    #   end
+    # end
+    # b.export === Hash (hierarchical tree -- hashes and arrays)
+    # b.flatten === Array (flat array list of Item objects)
+    class Builder
       
-      def self.build(label, opts={}, &blk)
-        root = Item.new(label, opts)
-        yield root
-        root
+      attr_reader :root, :opts
+      
+      def initialize(opts={})
+        @opts = opts
       end
+      
+      def items
+        @items ||= []
+      end
+      
+      def build(label, opts={}, &blk)
+        @root = Item.new(self, label, opts)
+        yield @root
+        @root
+      end
+      
+      def export(&blk)
+        @root.export(&blk)
+      end
+      
+      def flatten
+        @root.flatten
+      end
+      
+      def generate_id
+        [self.opts[:prefix], self.items.size].compact.join('-')
+      end
+      
+      protected
       
       # used for creating a navigation hierarchy,
       # then exporting to a simple array/hash format.
       class Item
         
-        attr_reader :label, :opts, :parent
+        attr_reader :builder, :id, :label, :opts, :parent
         
-        def initialize(label, opts={}, parent=nil)
+        def initialize(builder, label, opts={}, parent=nil)
+          @builder = builder
+          @id = self.builder.generate_id
           @label = label
           @opts = opts
           if parent
             @parent = parent
             parent.children << self
           end
+          builder.items << self
         end
         
         def flatten
@@ -189,7 +227,7 @@ module Raven
         end
         
         def item(label, opts={}, &blk)
-          item = self.class.new(label, opts, self)
+          item = self.class.new(self.builder, label, opts, self, &blk)
           yield item if block_given?
           item
         end
@@ -199,11 +237,11 @@ module Raven
         # the :label value is copied from self.label
         # the :children value is always an array, could be empty.
         # each item is yielded AFTER its children have been built.
-        def export(i=0, &blk)
+        def export(&blk)
           item_hash = {
-            :id => i,
+            :id => self.id,
             :label => self.label,
-            :children => self.children.map{|child| child.export(i+1, &blk) }
+            :children => self.children.map{|child| child.export(&blk) }
           }
           yield item_hash if block_given?
           item_hash

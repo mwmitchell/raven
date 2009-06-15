@@ -8,31 +8,43 @@ require 'raven'
 
 class RavenNavigationBuilderTest < Test::Unit::TestCase
   
-  def sample_nav
-    Raven::Navigation::Builder.build('Swinburne') do |root|
+  def sample_nav(builder_opts={})
+    nav = Raven::Navigation::Builder.new(builder_opts)
+    nav.build('Swinburne') do |root|
       root.item 'Description of Collection' do |desc|
         desc.item 'Item One', :xml=>'<root/>'
       end
     end
+    nav
   end
   
   should "export simple hashes correctly" do
-    expected = {:label=>"Swinburne",
-     :id=>0,
+    expected = {:id=>"0",
      :children=>
-      [{:label=>"Description of Collection",
-        :id=>1,
-        :children=>[{:label=>"Item One", :id=>2, :children=>[]}]}]}
+      [{:id=>"1",
+        :children=>[{:id=>"2", :children=>[], :label=>"Item One"}],
+        :label=>"Description of Collection"}],
+     :label=>"Swinburne"}
     assert_equal expected, sample_nav.export
+  end
+
+  should "export simple hashes correctly with an id prefix" do
+    expected = {:id=>"sb-0",
+     :children=>
+      [{:id=>"sb-1",
+        :children=>[{:id=>"sb-2", :children=>[], :label=>"Item One"}],
+        :label=>"Description of Collection"}],
+     :label=>"Swinburne"}
+    assert_equal expected, sample_nav(:prefix=>'sb').export
   end
   
   should "be able to change the exported nodes, within a block" do
-    expected = {:label=>"Swinburne",
-     :id=>'prefix-0',
+    expected = {:id=>"prefix-0",
      :children=>
-      [{:label=>"Description of Collection",
-        :id=>'prefix-1',
-        :children=>[{:label=>"Item One", :id=>'prefix-2', :children=>[]}]}]}
+      [{:id=>"prefix-1",
+        :children=>[{:id=>"prefix-2", :children=>[], :label=>"Item One"}],
+        :label=>"Description of Collection"}],
+     :label=>"Swinburne"}
     # prefix the ids with "prefix-"
     result = sample_nav.export {|item| item[:id] = "prefix-#{item[:id]}" }
     assert_equal(expected, result)
