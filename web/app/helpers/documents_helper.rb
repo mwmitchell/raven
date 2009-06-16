@@ -40,6 +40,7 @@ module DocumentsHelper
     stylesheet.transform document, params.inject([]){|accumulator,(k,v)|accumulator += [k.to_s,v.to_s]}
   end
   
+=begin
   def xslt(style, doc, params={})
     path_to_saxon_jar = File.join(RAILS_ROOT, 'lib', 'saxonb9-1-0-6j', 'saxon9.jar')
     name = Time.now.to_i
@@ -57,21 +58,22 @@ module DocumentsHelper
     FileUtils.rm [docf, stylef]
     result
   end
-  
-  # builds a full UL tree for a document's navigation
-  # example usage:
-  # <%= build_nav @document.full_nav, :recurse=>true %>
-  def build_nav(item, opts={})
-    html = '<ul class="nav">'
-    label = item['label'].blank? ? '[no title]' : item['label']
-    html << "<li>#{link_to_unless_current(label, document_path(item['id']))}"
-    if opts[:recurse] and (item['id'] == params[:id] || (item.flatten.any?{|c|c['id']==params[:id]} )) and item['children'].size > 0
-      item['children'].each do |n|
-        html << build_nav(n, opts)
+=end
+
+  def build_navigation(composite)
+    html = "<ul>"
+    total = composite.size-1
+    composite.each_with_index do |node,index|
+      if node[:item]
+        content = link_to_unless_current(node[:label], document_path(node[:item][:id]))
+      else
+        content = node[:label]
       end
+      html << "<li class=\"#{node[:label]=~/[0-9]+/ ? 'pagenum' : ''}\">" + content
+      html << build_navigation(node[:children]) if node[:children].size>0
+      html << "</li>"
     end
-    html << "</li>"
-    html << '</ul>'
+    html << "</ul>"
   end
   
 end

@@ -368,7 +368,7 @@
         Longer patterns will be matched first.  if equal size patterns
         both match, the first appearing in the schema will be used.  -->
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
-   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true"/>
+   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" termVectors="true"/>
    <dynamicField name="*_mvs"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_nst"  type="text"  indexed="true"  stored="false"/>
    <dynamicField name="*_l"  type="slong"   indexed="true"  stored="true"/>

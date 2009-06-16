@@ -30,6 +30,17 @@
 	</script>
 <% end %>
 
+<%
+# this needs to go into a helper method...
+navigation = MaterializedPath.set_to_composite(@navigation.docs, :field=>:path_s)
+# this could go into the MaterializedPath object...
+target = navigation.last[:children].detect do |c|
+	c[:children].detect do |c|
+		c[:item][:id]==params[:id]
+	end
+end
+%>
+
 <div class="container documentDetails">
 	
 	<div class="left toc">
@@ -37,8 +48,9 @@
 		<h3>browse this collection:</h3>
 		
 		<select id="sectionSelect">
-			<% @document.full_nav['children'].last['children'].each do |item| %>
-	        	<option value="<%= document_path(item['id'], :q=>params[:q]) %>" <%= 'selected="selected"' if params[:id] == item['id'] or item['children'].any?{|c|c['id'] == params[:id]} %>"><%= h item['label'] %></option>
+			<% navigation.last[:children].each do |node| %>
+				<% doc_node = node[:children].first %>
+				<option value="<%= document_path(doc_node[:item][:id], :q=>params[:q]) %>" <%= 'selected="selected"' if node == target %>"><%= h node[:label] %></option>
 	      <% end %>
 	    </select>
 		
@@ -60,9 +72,9 @@
 		
 		<hr/>
 		
-		<% if target = @document.target_nav %>
-			<% target['children'].each do |item| %>
-				<strong><%= link_to_unless_current item['label'], document_path(item['id'], :q=>params[:q]) %></strong> | 
+		<% if target %>
+			<% target[:children].each do |item| %>
+				<strong><%= link_to_unless_current item[:label], document_path(item[:item][:id], :q=>params[:q]) %></strong> | 
 			<% end %>
 		<% end %>
 		
@@ -70,7 +82,7 @@
 		
 		<div class="documentBody">
 			<% cache do %>
-				<%= xslt 'documents/_swinburne/show.xsl', @document[:xml_s] %>
+				<%= @document[:xml_s] %>
 			<% end %>
 		</div>
 		

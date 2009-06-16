@@ -3,7 +3,7 @@ class DocumentsController < ApplicationController
   helper_method :facet_fields
   
   def facet_fields
-    [:collection_title_s, :collection_s, :title_s, :copy_s]
+    [:collection_title_s, :title_s, :variant_s]
   end
   
   def index
@@ -21,9 +21,14 @@ class DocumentsController < ApplicationController
   end
   
   def show
-    #@response = solr.find(:q=>"id:#{params[:id]}")
-    #@document = @response.docs.first
-    render :text=>params.inspect
+    @response = solr.find(:phrases=>{:id => params[:id]})
+    @document = @response.docs.first
+    @navigation = solr.find({
+      :phrases=>{:collection_id_s=>@document[:collection_id_s]},
+      :fl => 'id,path_s',
+      :rows => 100000,
+      :sort => 'position_i asc'
+    })
   end
   
   protected
