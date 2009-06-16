@@ -73,8 +73,8 @@ namespace :index do
                   # the actual page break solr document
                   solr_docs << base_solr_doc.merge({
                     :id => poem_item_nav.id,
-                    :xml_s => xml.at('teiHeader').to_xml,
-                    :xml_t => xml.at('teiHeader').text
+                    :xml_s => pb.to_xml,
+                    :xml_t => pb.text
                   })
                 end
                 puts "..."
