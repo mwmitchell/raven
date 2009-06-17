@@ -23,12 +23,6 @@ class DocumentsController < ApplicationController
   def show
     @response = solr.find(:phrases=>{:id => params[:id]})
     @document = @response.docs.first
-    @navigation = solr.find({
-      :phrases=>{:collection_id_s=>@document[:collection_id_s]},
-      :fl => 'id,path_s',
-      :rows => 100000,
-      :sort => 'position_i asc'
-    })
   end
   
   protected
