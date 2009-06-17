@@ -1,9 +1,9 @@
 =Raven
 
 ==Indexing data:
-	rake solr:start
-	# new shell window...
-	rake index:swinburne --trace
-	# wait...
-	./script/server
-	# browse to http://localhost:3000/documents
+  rake solr:start
+new shell window...
+  rake index:swinburne --trace
+wait...
+  ./script/server
+browse to http://localhost:3000/documents
