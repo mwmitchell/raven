@@ -43,6 +43,7 @@ poems_nav = navigation.children.detect{|c|c.label=='Poems'}
 		<h3>browse this collection:</h3>
 		
 		<select id="sectionSelect">
+			<option value="">Select a poem...</option>
 			<% poems_nav.children.each do |node| %>
 				<% doc_node = node.children.first %>
 				<option value="<%= document_path(doc_node.object[:id], :q=>params[:q]) %>" <%= 'selected="selected"' if node == pages_nav %>"><%= h node.label %></option>
@@ -65,15 +66,13 @@ poems_nav = navigation.children.detect{|c|c.label=='Poems'}
 	<div class="right">
 		
 		
-		<hr/>
-		
 		<% if pages_nav %>
+			<hr/>
 			<% pages_nav.children.each do |item| %>
 				<strong><%= link_to_unless_current item.label, document_path(item.object[:id], :q=>params[:q]) %></strong> | 
 			<% end %>
+			<hr/>
 		<% end %>
-		
-		<hr/>
 		
 		<div class="documentBody">
 			<%= @document[:xml_s] %>

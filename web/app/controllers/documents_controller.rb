@@ -15,7 +15,7 @@ class DocumentsController < ApplicationController
   end
   
   def collection_search
-    @response = solr.find solr_search_params.merge({'hl.fragsize'=>20})
+    @response = solr.find solr_search_params.merge({'hl.fragsize'=>50, 'collapse.field'=>nil})
     @documents = @response.docs
     render :layout=>false
   end
@@ -37,13 +37,14 @@ class DocumentsController < ApplicationController
       :facets => {
         :fields=>facet_fields
       },
+      'collapse.field' => 'collection_id_s',
       'facet.limit' => 10,
       'facet.mincount' => 1,
       'facet.sort' => true,
       'hl' => 'on',
       'hl.fl' => '*_t',
       'hl.snippets' => 5,
-      'hl.fragsize' => 300,
+      'hl.fragsize' => 150,
       #:fl => 'text',
       #:qf => 'text'
     }

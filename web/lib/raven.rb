@@ -49,7 +49,7 @@ module Raven
         def target_navigation
           if n = self.navigation
             @target_navigation ||= (
-              n.descendants.detect{|d|d.object and d.object[:id]==self[:id]}.parent
+              n.descendants.detect{|d|d.object and d.object[:id]==self[:id]}.parent rescue nil
             )
           end
         end

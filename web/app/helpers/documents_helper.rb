@@ -29,7 +29,7 @@ module DocumentsHelper
     @response[:highlighting][doc[:id]].each_pair do |field, value|
       break if max_snippets > opts[:max]
       max_snippets += 1
-      yield field,value
+      value.each{|v| yield field,v}
     end
   end
   

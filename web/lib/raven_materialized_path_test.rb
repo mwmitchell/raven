@@ -14,6 +14,7 @@ class RavenMaterializedPathTest < Test::Unit::TestCase
     	{:id=>7, :path=>'A::b::c::a'},
     	{:id=>8, :path=>'A::b::c::a::11'},
     	{:id=>100, :path=>'Z::100'},
+    	{:id=>7, :path=>'A::b::c::d'}
     ]
     root = Raven::MaterializedPath.set_to_composite(set)
     
@@ -47,7 +48,7 @@ class RavenMaterializedPathTest < Test::Unit::TestCase
     
     assert_equal ['100'], b.children.map{|c|c.label}
     
-    expected_labels = ["poems", "b", "one", "two", "1", "2", "11", "c", "a", "11", "100"]
+    expected_labels = ["poems", "b", "one", "two", "1", "2", "11", "c", "a", "d", "11", "100"]
     assert_equal expected_labels, root.descendants.map{|c|c.label}
     
   end

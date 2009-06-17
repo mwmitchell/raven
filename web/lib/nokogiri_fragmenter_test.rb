@@ -152,13 +152,11 @@ expected = [
 '
 ]
 
+=begin
 bm_data = File.read('../collections/swinburne/tei-swinburne3.xml')
-
 require 'benchmark'
 upto = 10
-
 xml = Nokogiri::XML(bm_data)
-
 Benchmark.bmbm do |x|
   x.report('fragmenter') do
     upto.times do
@@ -170,6 +168,7 @@ Benchmark.bmbm do |x|
     end
   end
 end
+=end
 
 #####################################################
 

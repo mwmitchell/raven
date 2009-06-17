@@ -441,10 +441,19 @@
        see http://wiki.apache.org/solr/DisMaxRequestHandler
    -->
   <requestHandler name="dismax" class="solr.SearchHandler" >
-    <lst name="defaults">
+   	<arr name="components">
+	<str>query</str>
+	<str>facet</str>
+	<str>collapse</str>
+	<str>mlt</str>
+	<str>highlight</str>
+	<str>debug</str>
+	</arr> 
+   <lst name="defaults">
      <str name="defType">dismax</str>
      <str name="echoParams">explicit</str>
      <float name="tie">0.01</float>
+     
      <str name="qf">
         text *_t *_facet *_s
      </str>
@@ -519,6 +528,7 @@
     </lst>
   </requestHandler>
 
+  <searchComponent name="collapse" class="org.apache.solr.handler.component.CollapseComponent" />
 
   <!--
    Search components are registered to SolrCore and used by Search Handlers
