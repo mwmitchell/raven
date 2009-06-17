@@ -1,8 +1,11 @@
 =Raven
 
 ==Indexing data:
+# move into web app dir...
+  cd web
   rake solr:start
 new shell window...
+  cd web
   rake index:swinburne --trace
 wait...
   ./script/server
