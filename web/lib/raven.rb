@@ -35,13 +35,17 @@ module Raven
         def navigation
           if self[:collection_id_s]
             @navigation ||= (
+              # using :phrases (quoted q values) and standard query parser...
+              # is much faster than an fq and dismax parser... don't know why.
               nav_response = Raven.solr.find({
                 :phrases=>{:collection_id_s => self[:collection_id_s]},
                 :fl => 'id,path_s',
                 :rows => 100000,
                 :sort => 'position_i asc'
               })
-              Raven::MaterializedPath.set_to_composite(nav_response.docs, :field=>:path_s)
+              Raven::MaterializedPath.to_composite(nav_response.docs) do |doc|
+                doc[:path_s].split('::')
+              end
             )
           end
         end
@@ -70,32 +74,39 @@ module Raven
   
   module MaterializedPath
     
-    def self.set_to_composite(set, opts={})
-      unless block_given?
-        opts[:delimiter]  ||= '::'
-        opts[:field]      ||= :path
-      end
+    # Translates an array of objects into composite hierarchy.
+    # Each item in the array should have some kind of path value: a/b/c/d/e
+    # Must provide a block, that returns an array of path values:
+    # root = MaterializedPath.to_composite(array_of_items_with_paths) do |item|
+    #   item[:path].split('/')
+    # end
+    # root.children
+    # root.descendants
+    # root.object # the original item in the array
+    def self.to_composite(set, opts={})
       root = Composite.new('root')
+      # loop through each object in the array
       set.each do |item|
-        val = block_given? ? yield(item) : item[opts[:field]].to_s.split(opts[:delimiter])
-        acc = nil # define in outer scope to set the :item
-        val.compact.inject(root) do |acc,k|
-          acc.children << Composite.new(k, acc) unless acc.children.any?{|i|i.label==k}
-          acc.children.detect{|i|i.label==k}
+        path_fragments = yield(item)
+        composite = nil # define in outer scope to set the :item
+        path_fragments.inject(root) do |composite,fragment|
+          composite.children.detect{|child|child.value==fragment} or Composite.new(fragment, composite)
         end
         # the last path item is always the object
-        acc.children.last.object = item
+        composite.children.last.object = item
       end
       root
     end
     
+    # A class that represents a tree/hierarchical-node
     class Composite
       
-      attr_reader :label, :parent
+      attr_reader :value, :parent
       attr_accessor :object
       
-      def initialize(label='', parent=nil)
-        @label, @parent = label, parent
+      def initialize(value='', parent=nil)
+        @value, @parent = value, parent
+        parent.children << self if parent
       end
       
       def children

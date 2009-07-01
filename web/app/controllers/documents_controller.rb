@@ -38,7 +38,7 @@ class DocumentsController < ApplicationController
         :fields=>facet_fields
       },
       'collapse.field' => 'collection_id_s',
-      'facet.limit' => 10,
+      'facet.limit' => -1,
       'facet.mincount' => 1,
       'facet.sort' => true,
       'hl' => 'on',

@@ -1,3 +1,34 @@
+<% html_top << capture do %>
+	<style type="text/css">
+	#sectionSelect{
+		margin-top:1em;
+	}
+	.tei.prepub{
+		display:none;
+	}
+	.tei.head{
+		display:none;
+	}
+	.tei.hi{
+		display:inline;
+		font-style:italic;
+	}
+	.tei.text{letter-spacing:.05em;}
+	blockquote{
+		border : 1px solid #888;
+		border-right:none;
+		width: 200px;
+		float: right;
+		margin: 0px;
+		padding: 10px;
+		background-color: #ccc;
+		quotes: "\201C" "\201D";
+	}
+	blockquote:before { content: open-quote; font-weight: bold; }
+	blockquote:after { content: close-quote; font-weight: bold; }
+	</style>
+<% end %>
+
 <% html_bottom << capture do %>
 	
 	<%= javascript_include_tag 'highlight.jquery.js', 'ajax-form.jquery.js' %>
@@ -13,8 +44,6 @@
 			if params[:q] =~ rules %>
 				$('.documentBody').highlight("<%= params[:q].scan(rules).first %>")
 			<% end %>
-			
-			//
 			
 			<% if params[:q] %>
 			$('#collectionSearch').ajaxSubmit(function(data){
@@ -33,20 +62,20 @@
 <%
 navigation = @document.navigation
 pages_nav = @document.target_navigation
-poems_nav = navigation.children.detect{|c|c.label=='Poems'}
+poems_nav = navigation.children.detect{|c|c.value=='Poems'}
 %>
 
 <div class="container documentDetails">
 	
 	<div class="left toc">
 		
-		<h3>browse this collection:</h3>
+		<h4><%= link_to navigation.children.first.value, document_path(navigation.children.first.object[:id]) %></h4>
 		
 		<select id="sectionSelect">
 			<option value="">Select a poem...</option>
 			<% poems_nav.children.each do |node| %>
 				<% doc_node = node.children.first %>
-				<option value="<%= document_path(doc_node.object[:id], :q=>params[:q]) %>" <%= 'selected="selected"' if node == pages_nav %>"><%= h node.label %></option>
+				<option value="<%= document_path(doc_node.object[:id], :q=>params[:q]) %>" <%= 'selected="selected"' if node == pages_nav %>"><%= h node.value %></option>
 	      <% end %>
 	    </select>
 		
@@ -65,17 +94,36 @@ poems_nav = navigation.children.detect{|c|c.label=='Poems'}
 	
 	<div class="right">
 		
+		<h2><%= h @document[:title] %>, by <%= @document[:author_s] %></h2>
 		
 		<% if pages_nav %>
 			<hr/>
+			PAGES: &nbsp;
+			<% pages = [] %>
 			<% pages_nav.children.each do |item| %>
-				<strong><%= link_to_unless_current item.label, document_path(item.object[:id], :q=>params[:q]) %></strong> | 
+				<% pages << capture do %>
+					<strong><%= link_to_unless_current item.value, document_path(item.object[:id], :q=>params[:q]) %></strong>
+				<% end %>
 			<% end %>
+			<%= pages.join(' | ') %>
 			<hr/>
 		<% end %>
 		
 		<div class="documentBody">
-			<%= @document[:xml_s] %>
+			<%
+			body = Nokogiri::XML(@document[:xml_s])
+			body.traverse do |n|
+				#if n['rend']=='ti-1'
+					#n.before '&#160;'
+				#elsif n['rend']=='ti-2'
+					#n.before '&#160; &#160;'
+				#end
+				n.keys.each{|k|n.delete k}
+				n['class'] = "tei #{n.name}"
+				n.name = n['class']=~/quote/ ? 'blockquote' : 'div'
+			end
+			%>
+			<%= body.to_xml %>
 		</div>
 		
 	</div>
