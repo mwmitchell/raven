@@ -1,7 +1,5 @@
 class DocumentsController < ApplicationController
   
-  layout false
-  
   helper_method :facet_fields
   
   def facet_fields

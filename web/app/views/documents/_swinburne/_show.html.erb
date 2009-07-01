@@ -17,6 +17,16 @@
 		display:inline;
 		font-style:italic;
 	}
+	.tei.rend--sc{
+		text-transform: uppercase;
+	}
+	.tei.rend--i{
+		font-style:italic;
+	}
+	.tei.note{
+		background-color:#EFEFEF;
+		margin:0 1em;
+	}
 	.tei.text{letter-spacing:.05em;}
 	blockquote{
 		border : 1px solid #888;
@@ -117,15 +127,14 @@ poems_nav = navigation.children.detect{|c|c.value=='Poems'}
 			<%
 			body = Nokogiri::XML(@document[:xml_s])
 			body.traverse do |n|
-				#if n['rend']=='ti-1'
-					#n.before '&#160;'
-				#elsif n['rend']=='ti-2'
-					#n.before '&#160; &#160;'
-				#end
-				n.keys.each{|k|n.delete k}
-				n['class'] = "tei #{n.name}"
-				n.remove if n.name=='pb'
-				n.name = n['class']=~/quote/ ? 'blockquote' : 'div'
+				css_classes = ["tei", n.name]
+				n.keys.each do |k|
+					css_classes << k
+					css_classes << k + '--' + n[k]
+					n.delete k
+				end
+				n.name = css_classes.include?('quote') ? 'blockquote' : 'div'
+				n['class'] = css_classes.join(' ')
 			end
 			%>
 			<%= body.to_xml %>
