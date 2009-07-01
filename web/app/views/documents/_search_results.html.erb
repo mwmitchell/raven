@@ -10,6 +10,7 @@
     <h5><%= doc[:collection_title_s] + (doc[:copy_s] ? "; #{doc[:copy_s]}" : '') %></h5>
 	<div>Title: <%= doc[:title] %></div>
 	<div>Author: <%= doc[:author_s] %></div>
+	<div>Copy: <%= doc[:variant_s] %></div>
 	<% if @response[:highlighting] %>
 		<% hl_snippets(doc) do |f,v| %>
 	      <div class="hlSnippet">
