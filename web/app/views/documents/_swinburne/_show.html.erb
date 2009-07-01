@@ -124,6 +124,7 @@ poems_nav = navigation.children.detect{|c|c.value=='Poems'}
 				#end
 				n.keys.each{|k|n.delete k}
 				n['class'] = "tei #{n.name}"
+				n.remove if n.name=='pb'
 				n.name = n['class']=~/quote/ ? 'blockquote' : 'div'
 			end
 			%>

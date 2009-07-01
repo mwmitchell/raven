@@ -46,3 +46,5 @@ Rails::Initializer.run do |config|
   config.gem 'nokogiri'
   
 end
+
+Mime::Type.register "text/xml", :juxta

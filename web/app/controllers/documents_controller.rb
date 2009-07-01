@@ -1,5 +1,7 @@
 class DocumentsController < ApplicationController
   
+  layout false
+  
   helper_method :facet_fields
   
   def facet_fields
@@ -23,6 +25,10 @@ class DocumentsController < ApplicationController
   def show
     @response = solr.find(:phrases=>{:id => params[:id]})
     @document = @response.docs.first
+    respond_to do |f|
+      f.html
+      f.juxta
+    end
   end
   
   protected
