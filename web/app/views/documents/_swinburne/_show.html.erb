@@ -3,6 +3,10 @@
 	#sectionSelect{
 		margin-top:1em;
 	}
+	h2 span.title{
+		display:inline;
+		font-style:italic;
+	}
 	.tei.prepub{
 		display:none;
 	}
@@ -94,7 +98,7 @@ poems_nav = navigation.children.detect{|c|c.value=='Poems'}
 	
 	<div class="right">
 		
-		<h2><%= h @document[:title] %>, by <%= @document[:author_s] %></h2>
+		<h2><span class="title"><%= h @document[:title] %></span>, by <%= @document[:author_s] %></h2>
 		
 		<% if pages_nav %>
 			<hr/>
