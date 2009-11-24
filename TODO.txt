@@ -12,6 +12,9 @@ DONE - Implement richer navigation model
 		-- handle this logic in view helper?
 
 
+Improved multi-valued faceting?
+  https://issues.apache.org/jira/browse/SOLR-475
+
 Check out - http://www.railsinside.com/plugins/164-7-tree-data-structure-plugins-for-rails.html
 	
 	DocMeta.find(:document_id=>'swinburne').each{|d|d.destroy}
