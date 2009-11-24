@@ -1,0 +1,16 @@
+id
+title
+variation
+position
+hierarchy
+collection
+collection_id
+xml
+xml_text
+type
+source
+
+meta_s (author, publisher etc.)
+meta_t (same)
+
+sortables?
