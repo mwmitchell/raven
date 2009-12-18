@@ -17,7 +17,7 @@ class SwinburneMapper
       variant_id = fname.scan(/.*-([A-Z]+)\.xml$/).first.first rescue nil
       {
         :collection_id => collection_id,
-        :file_s => xml_file,
+        :file_s => xml_file.sub("#{Rails.root}/", ''),
         :filename_s => fname,
         :variant_id => variant_id,
         :collection_title_t => xml.at('//sourceDesc/citnstruct/title').text,
@@ -72,8 +72,9 @@ class SwinburneMapper
           :parent_id => parent_id,
           :xml_s => page_fragment.to_xml,
           :text => page_fragment.text,
-          :title => poem_title
+          :title => page_num
         })
+        doc_index += 1
         puts "..."
       end # end fragmenter
     end # end search("//text") (each poem)

@@ -7,11 +7,7 @@ module Raven
   # Example:
   # Raven.solr.find(:q=>'*:*')
   def self.solr
-    @solr ||= (
-      c = RSolr::Ext.connect
-      c.adapter.connector.adapter_name = :net_http
-      c.extend SolrExt::Connection
-    )
+    @solr ||= RSolr::Ext.connect
   end
   
   def self.app_path(*items)
