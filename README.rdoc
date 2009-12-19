@@ -1,6 +1,7 @@
 =Raven
+Raven is a flexible framework for indexing, searching and displaying various data formats. In its preliminary stages, Raven has shown to work with TEI, EAD and VRA as well as other, non-XML formats. The framework aims to provide out of the box “profiles” for different data formats. Profiles will include indexing strategies, view templates and user interface widgets for working with the data in meaningful ways. The modern software stack is all open source. Ruby on Rails provides the application framework while Solr provides the search engine and data store.
 
-==Indexing data:
+==Indexing the demo (TEI) data:
 # move into web app dir...
   cd web
   rake solr:start
