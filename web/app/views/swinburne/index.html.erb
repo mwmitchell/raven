@@ -1,8 +1,26 @@
-<h3>Poems</h3>
+<% @page_title = @response.docs.first[:collection_title_t] rescue 'No matches' %>
+
+<form action="<%= swinburne_path %>">
+	<input type="text" name="q" value="<%= h params[:q] %>"/>
+	<input type="submit" value="Search" />
+	<%= link_to('clear', swinburne_path) unless params[:q].blank? %>
+</form>
+
 <% poems_facet = @response.facets.detect{|f| f.name == 'poem_title_facet'} %>
 
-<ul>
-<% poems_facet.items.each do |item| %>
-	<li><%= link_to item.value, swinburne_poem_path(item.value.downcase.gsub(' ', '-')) %></li>
+<% if poems_facet %>
+	<ul>
+	<% poems_facet.items.each do |item| %>
+		<li>
+			<span>
+				<%= link_to item.value, swinburne_poem_path(item.value.to_slug) %>
+			</span><%= item.hits %>
+			<ul>
+				<% (@response.docs.select{|d| d[:poem_title_facet][0] == item.value }[0..3]).each do |doc| %>
+					<li><%= link_to @response[:highlighting][doc[:id]]['xml_t'], swinburne_poem_page_path(item.value.to_slug, doc[:local_id]) %></li>
+				<% end %>
+			</ul>
+		</li>
+	<% end %>
+	</ul>
 <% end %>
-</ul>

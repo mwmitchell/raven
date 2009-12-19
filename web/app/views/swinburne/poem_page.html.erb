@@ -1,0 +1,7 @@
+<% doc = @response.docs.first %>
+
+<% @page_title = doc[:title] %>
+
+<div>
+	<%= poem_xml_to_html doc[:xml_s] %>
+</div>

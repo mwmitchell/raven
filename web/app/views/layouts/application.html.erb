@@ -4,8 +4,157 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>Raven</title>
+		<%= javascript_include_tag 'jquery' %>
+		<style type="text/css">
+		body {
+			font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
+			font-size:10.5pt;
+			color:#222222;
+			background: #333333;
+			margin: 0;
+		}
+
+		a {
+			color: #617fc3;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: #395490;
+		}
+
+		h1 {
+			font-family: Helvetica, Arial, Sans-Serif;
+			letter-spacing: -0.03em;
+			color:#CCCCCC;
+			font-size:6em;
+			margin-top:2em;
+			margin-bottom:0;
+		}
+
+		h2 {
+		  color:#CCCCCC;
+			font-size: 3em;
+		}
+
+		#title {
+			font-family: Helvetica, Arial, Sans-Serif;
+			letter-spacing:-0.07em;
+			text-align: left;
+			font-size:1.1em;
+			margin-left: .7em;
+			margin-bottom: 1.5em;
+			color:#666666;
+		}
+
+		#title h1 {
+			font-size:3em;
+			line-height:0.8em;
+			margin: 0;
+			margin-bottom: -0.05em;
+		}
+
+
+		#content {
+		  line-height: 1.5em;
+		  margin-bottom: 1em;
+		  margin-right:-0.5em;
+		}
+
+		.site {
+			width:45em;
+			margin: 0 auto;
+			padding: 5em 5em;
+			background: #F5F5F5;
+		}
+		
+		pre {
+		  margin-left: -4em;
+		  color: #F5F5F5;
+		  background: #333333;
+		}
+
+		.ack {
+		  padding-top: 1em;
+		  float: right;
+		  font-size: 9pt;
+		}
+
+		.note {
+		  background-color: #ffffcc;
+		  border: solid 1px #ffff76;
+
+		  padding: 1em;
+		}
+		
+		/***********************/
+		
+		div.container {
+			overflow: hidden;
+			width: 100%;
+			display:block;
+		}
+
+		div.left {
+			width: 45%;
+			float: left;
+		}
+
+		div.right {
+			width: 45%;
+			float: right;
+		}
+
+		.leftText{text-align:left;}
+		.rightText{text-align:right;}
+
+		.leftImage{
+			float:left;
+			margin-right:1em;
+		}
+
+		.rightImage{
+			float:right;
+			margin-left:1em;
+		}
+
+		.photo{
+			border:solid 1px #CDCDCD;
+		}
+
+
+		dl.defList{
+			overflow:auto;
+			padding:0.5em 0;
+			margin:0;
+		}
+		dl.defList dt{
+			clear:both;
+			color:#888888;
+			float:left;
+			margin:0;
+			padding:2px 1em 2px 0;
+			text-align:right;
+			width:30%;
+		}
+		dl.defList dd{
+			float:left;
+			margin:0;
+			padding:2px 0;
+			text-align:left;
+			width:64%;
+		}
+		</style>
 	</head>
 	<body>
-		<%= yield %>
+		<div class="site">
+		      <div id="title">
+		        <h1><%= @page_title || 'Raven' %></h1>
+		      </div>
+
+		      <div id="content">
+				<%= yield %>
+			</div>
+		</div>
 	</body>
 </html>

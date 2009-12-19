@@ -47,4 +47,6 @@ Rails::Initializer.run do |config|
   
 end
 
+require 'string_ext'
+
 Mime::Type.register "text/xml", :juxta

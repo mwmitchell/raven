@@ -1,5 +1,6 @@
 require 'raven'
 require 'nokogiri_fragmenter'
+require 'string_ext'
 
 class SwinburneMapper
   
@@ -62,10 +63,11 @@ class SwinburneMapper
           :id => "#{collection_id}-#{local_id}",
           :local_id => local_id,
           :xml_s => page_fragment.to_xml,
+          :xml_t => page_fragment.text,
           :text => page_fragment.text,
           :poem_title_t => poem_title,
           :poem_title_facet => poem_title,
-          :poem_slug_s => poem_title.downcase.tr(' ', '-'),
+          :poem_slug_s => poem_title.to_slug,
           :title => "#{poem_title}, Page #{page_num}",
           :page_s => page_num,
         })

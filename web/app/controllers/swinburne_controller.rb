@@ -9,7 +9,7 @@ class SwinburneController < ApplicationController
   end
   
   def poem_page
-    
+    @response = Swinburne.find_by_local_id params[:local_id]
   end
   
 end

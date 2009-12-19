@@ -1,7 +1,50 @@
-<h3><%= @response.docs.first[:poem_title_t] %></h3>
+<style type="text/css">
+#sectionSelect{
+	margin-top:1em;
+}
+h2 span.title{
+	display:inline;
+	font-style:italic;
+}
+.tei.prepub{
+	display:none;
+}
+.tei.head{
+	display:none;
+}
+.tei.hi{
+	display:inline;
+	font-style:italic;
+}
+.tei.rend__sc{
+	text-transform: uppercase;
+}
+.tei.rend__i{
+	font-style:italic;
+}
+.tei.note{
+	background-color:#EFEFEF;
+	margin:0 1em;
+}
+.tei.text{letter-spacing:.05em;}
+blockquote{
+	border : 1px solid #888;
+	border-right:none;
+	width: 200px;
+	float: right;
+	margin: 0px;
+	padding: 10px;
+	background-color: #ccc;
+	quotes: "\201C" "\201D";
+}
+blockquote:before { content: open-quote; font-weight: bold; }
+blockquote:after { content: close-quote; font-weight: bold; }
+</style>
+
+<% @page_title = @response.docs.first[:poem_title_t] %>
 
 <% @response.docs[0..0].each do |doc| %>
-	<dl>
+	<dl class="note defList">
 		<% doc.each_pair do |k,v| %>
 			<% next if ['variant_facet', 'xml_s'].include?(k) %>
 			<dt><%= k %></dt>
@@ -25,8 +68,8 @@ end
 
 <% doc_groups.each_pair do |variant,docs| %>
 	<h4><%= h variant %></h4>
-	<% docs.each do |doc| %>
-		<div style="position:absolute; top:1000px;"><%= doc[:xml_s] %></div>
+	<% docs.each_with_index do |doc,index| %>
+		<div><%= poem_xml_to_html doc[:xml_s] %></div>
 	<% end %>
 <% end %>
 
