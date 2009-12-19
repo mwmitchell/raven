@@ -1,0 +1,8 @@
+<h3>Poems</h3>
+<% poems_facet = @response.facets.detect{|f| f.name == 'poem_title_facet'} %>
+
+<ul>
+<% poems_facet.items.each do |item| %>
+	<li><%= link_to item.value, swinburne_poem_path(item.value.downcase.gsub(' ', '-')) %></li>
+<% end %>
+</ul>

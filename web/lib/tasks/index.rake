@@ -8,7 +8,7 @@ namespace :index do
       puts "\n\t** file: #{f}\n"
       mapper = SwinburneMapper.new f
       mapper.map do |solr_doc|
-        puts "#{solr_doc[:parent_id]} / #{solr_doc[:id]}"
+        puts solr_doc[:id]
         Raven.solr.add solr_doc
       end
     end

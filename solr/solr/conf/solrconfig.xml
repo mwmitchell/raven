@@ -455,7 +455,7 @@
      <float name="tie">0.01</float>
      
      <str name="qf">
-        text *_t *_facet *_s
+        text *_t *_facet *_s *_id
      </str>
      <str name="fl">
         *,score

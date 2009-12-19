@@ -1,0 +1,41 @@
+<h3><%= @response.docs.first[:poem_title_t] %></h3>
+
+<% @response.docs[0..0].each do |doc| %>
+	<dl>
+		<% doc.each_pair do |k,v| %>
+			<% next if ['variant_facet', 'xml_s'].include?(k) %>
+			<dt><%= k %></dt>
+			<dd><%= v %></dd>
+		<% end %>
+	</dl>
+	<hr/>
+<% end %>
+
+<% variant_facet = @response.facets.detect{|f| f.name == 'variant_facet'} %>
+
+<% variants = variant_facet.items.map{|i|i.value} %>
+
+<%
+doc_groups = {}
+variants.each do |v|
+	doc_groups[v] ||= []
+	doc_groups[v] = @response.docs.select{|d| d[:variant_facet].first == v }
+end
+%>
+
+<% doc_groups.each_pair do |variant,docs| %>
+	<h4><%= h variant %></h4>
+	<% docs.each do |doc| %>
+		<div style="position:absolute; top:1000px;"><%= doc[:xml_s] %></div>
+	<% end %>
+<% end %>
+
+<!-- <h3>Publications</h3>
+
+<ul>
+	<% variant_facet.items.each do |item| %>
+		<li>
+		<%= link_to item.value, swinburne_poem_page_path(params[:poem_slug], item.value.downcase.gsub(' ', '-')) %>
+		</li>
+	<% end %>
+</ul> -->
