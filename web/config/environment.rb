@@ -44,7 +44,7 @@ Rails::Initializer.run do |config|
   config.gem 'will_paginate', :lib=>'will_paginate', :source => 'http://gemcutter.org'
   
   config.gem 'nokogiri'
-  
+  config.gem 'htmldiff', :source => 'http://gemcutter.org'
 end
 
 require 'string_ext'

@@ -1,6 +1,11 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   
+  def diff one, two
+    @differ ||= nil.extend(::HTMLDiff)
+    @differ.diff one, two
+  end
+  
   def html_top
     @html_top ||= []
   end
