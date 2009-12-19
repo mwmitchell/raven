@@ -43,12 +43,6 @@ blockquote:after { content: close-quote; font-weight: bold; }
 
 <% @page_title = @response.docs.first[:poem_title_t] %>
 
-<%= diff @response.docs[0][:xml_t], @response.docs[1][:xml_t] %>
-
-<%
-=begin
-%>
-
 <% @response.docs[0..0].each do |doc| %>
 	<dl class="note defList">
 		<% doc.each_pair do |k,v| %>
@@ -88,7 +82,3 @@ end
 		</li>
 	<% end %>
 </ul> -->
-
-<%
-=end
-%>
