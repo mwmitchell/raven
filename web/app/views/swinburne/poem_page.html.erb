@@ -2,6 +2,10 @@
 
 <% @page_title = doc[:title] %>
 
+<% @relatives.docs.each do |d| %>
+	<%= link_to_unless_current d[:page_s], swinburne_poem_page_path(params[:poem_slug], d[:local_id]) %>
+<% end %>
+
 <div>
 	<%= poem_xml_to_html doc[:xml_s] %>
 </div>

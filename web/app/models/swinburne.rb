@@ -11,11 +11,11 @@ class Swinburne
       'facet' => true,
       'facet.mincount' => 1,
       :rows => 2_000_000_000,
-      :hl => true,
+      'hl' => 'true',
       'hl.fl' => 'xml_t',
-      'fl.fragsize' => 100,
-      :fl => 'id,score,poem_title_facet,local_id'
-    }
+      'hl.fragsize' => 100,
+      :fl => 'id,score,poem_title_facet,local_id,page_s'
+    }.merge(input_params)
     connection.find search_params
   end
   

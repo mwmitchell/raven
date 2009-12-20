@@ -15,11 +15,14 @@
 			<span>
 				<%= link_to item.value, swinburne_poem_path(item.value.to_slug) %>
 			</span><%= item.hits %>
-			<ul>
-				<% (@response.docs.select{|d| d[:poem_title_facet][0] == item.value }[0..3]).each do |doc| %>
-					<li><%= link_to @response[:highlighting][doc[:id]]['xml_t'], swinburne_poem_page_path(item.value.to_slug, doc[:local_id]) %></li>
-				<% end %>
-			</ul>
+			<% if @response[:highlighting] %>
+				<ul>
+					<% (@response.docs.select{|d| d[:poem_title_facet][0] == item.value }[0..6]).each do |doc| %>
+						<li>
+							<%= link_to @response[:highlighting][doc[:id]]['xml_t'], swinburne_poem_page_path(item.value.to_slug, doc[:local_id]) %></li>
+					<% end %>
+				</ul>
+			<% end %>
 		</li>
 	<% end %>
 	</ul>

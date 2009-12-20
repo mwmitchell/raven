@@ -10,6 +10,8 @@ class SwinburneController < ApplicationController
   
   def poem_page
     @response = Swinburne.find_by_local_id params[:local_id]
+    doc = @response.docs.first
+    @relatives = Swinburne.find :fq => [%(collapse_id:"#{doc[:collapse_id]}"), %(poem_title_facet:"#{doc[:poem_title_facet]}")], :rows => 999999
   end
   
 end

@@ -1,7 +1,4 @@
 <style type="text/css">
-#sectionSelect{
-	margin-top:1em;
-}
 h2 span.title{
 	display:inline;
 	font-style:italic;
@@ -46,7 +43,7 @@ blockquote:after { content: close-quote; font-weight: bold; }
 <% @response.docs[0..0].each do |doc| %>
 	<dl class="note defList">
 		<% doc.each_pair do |k,v| %>
-			<% next if ['variant_facet', 'xml_s'].include?(k) %>
+			<% next if ['variant_facet', 'xml_s', 'xml_t', 'collapse_id', 'id', 'file_s', 'local_id', 'filename_s', 'poem_slug_s', 'collection_id', 'spell'].include?(k) %>
 			<dt><%= k %></dt>
 			<dd><%= v %></dd>
 		<% end %>
@@ -54,6 +51,9 @@ blockquote:after { content: close-quote; font-weight: bold; }
 	<hr/>
 <% end %>
 
+<%
+=begin
+%>
 <% variant_facet = @response.facets.detect{|f| f.name == 'variant_facet'} %>
 
 <% variants = variant_facet.items.map{|i|i.value} %>
@@ -71,14 +71,9 @@ end
 	<% docs.each_with_index do |doc,index| %>
 		<div><%= poem_xml_to_html doc[:xml_s] %></div>
 	<% end %>
+	<% break %>
 <% end %>
 
-<!-- <h3>Publications</h3>
-
-<ul>
-	<% variant_facet.items.each do |item| %>
-		<li>
-		<%= link_to item.value, swinburne_poem_page_path(params[:poem_slug], item.value.downcase.gsub(' ', '-')) %>
-		</li>
-	<% end %>
-</ul> -->
+<% 
+=end
+%>
