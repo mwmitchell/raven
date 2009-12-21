@@ -9,7 +9,7 @@
 	<dd>
 		<ul>
 			<% @response.facets.detect{|f|f.name=='variant_s'}.items.each do |variant| %>
-				<li><%= link_to variant.value, swinburne_poem_page_path(params[:poem_slug], "#{variant.value}-0") %></li>
+				<li><%= link_to variant.value, swinburne_variant_poem_path("#{variant.value}", params[:poem_id]) %></li>
 			<% end %>
 		</ul>
 	</dd>

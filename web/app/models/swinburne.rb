@@ -36,10 +36,10 @@ class Swinburne
   def self.find_variant_poem variant_id, poem_title_id
     connection.find(
       :q=>%(poem_title_id:"#{poem_title_id}"),
-      :fq => [%(collection_id:"swinburne"),%(variant_s:"#{variant_id}")],
+      :fq => [%(collection_id:"swinburne"),%({!tag=variant}variant_s:"#{variant_id}")],
       :rows => ALLROWS,
       'facet' => true,
-      'facet.field' => ['variant_s'],
+      'facet.field' => ['{!ex=variant}variant_s'],
       'facet' => true,
       'facet.mincount' => 1
     )
