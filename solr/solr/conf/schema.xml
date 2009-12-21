@@ -368,7 +368,7 @@
         Longer patterns will be matched first.  if equal size patterns
         both match, the first appearing in the schema will be used.  -->
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
-   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" termVectors="true"/>
+   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" termVectors="true" multiValued="false"/>
    <dynamicField name="*_mvs"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_l"  type="slong"   indexed="true"  stored="true"/>
    <dynamicField name="*_t"  type="text"    indexed="true"  stored="true"/>
@@ -380,7 +380,8 @@
    
    <dynamicField name="*_facet"  type="string"    indexed="true"  stored="true" multiValued="true"/>
    
-   <dynamicField name="*_id" type="string" indexed="true" stored="true" termVectors="true"/>
+   <!-- a single-valued string with a convenient name -->
+   <dynamicField name="*_id" type="string" indexed="true" stored="true" termVectors="true" multiValued="false"/>
    
    <dynamicField name="random*" type="random" />
    
@@ -406,15 +407,21 @@
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
-   <copyField source="title" dest="text"/>
+   
+   <!-- <copyField source="title" dest="text"/>
    <copyField source="title" dest="titleSort"/>
    <copyField source="title" dest="alphaTitleSort"/>
    
-   <copyField source="title" dest="spell"/>
+   <copyField source="title" dest="spell"/> -->
    
-   <copyField source="*_t" dest="text"/>
+   <!-- make these string based fields more searchable -->
+   <copyField source="*_facet" dest="text"/>
    <copyField source="*_s" dest="text"/>
    <copyField source="*_mvs" dest="text"/>
+   
+   <!-- <copyField source="*_t" dest="text"/>
+   <copyField source="*_s" dest="text"/>
+   <copyField source="*_mvs" dest="text"/> -->
    
  <!-- Similarity is the scoring routine for each document vs. a query.
       A custom similarity may be specified here, but the default is fine
