@@ -40,16 +40,7 @@ blockquote:after { content: close-quote; font-weight: bold; }
 
 <% @page_title = @response.docs.first[:poem_title_t] %>
 
-<% @response.docs[0..0].each do |doc| %>
-	<dl class="note defList">
-		<% doc.each_pair do |k,v| %>
-			<% next if ['variant_facet', 'xml_s', 'xml_t', 'collapse_id', 'id', 'file_s', 'local_id', 'filename_s', 'poem_slug_s', 'collection_id', 'spell'].include?(k) %>
-			<dt><%= k %></dt>
-			<dd><%= v %></dd>
-		<% end %>
-	</dl>
-	<hr/>
-<% end %>
+<%= render 'shared_fields', :doc=>@response.docs.first %>
 
 <%
 =begin
