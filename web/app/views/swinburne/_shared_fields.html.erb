@@ -1,0 +1,17 @@
+<dl class="note defList">
+	
+	<% %W(poem_title_s collection_title_t author_t publisher_t provenance_recnum_t city_t date_s printer_t physical_cover_t provenance_location_t).each do |field| %>
+		<dt><%= field.sub(/_.{1}$/,'').titleize %></dt>
+		<dd><%= doc[field] %></dd>
+	<% end %>
+	
+	<dt>Variants</dt>
+	<dd>
+		<ul>
+			<% @response.facets.detect{|f|f.name=='variant_s'}.items.each do |variant| %>
+				<li><%= link_to variant.value, swinburne_poem_page_path(params[:poem_slug], "#{variant.value}-0") %></li>
+			<% end %>
+		</ul>
+	</dd>
+	
+</dl>

@@ -1,7 +1,7 @@
 module StringExt
   
   def to_slug
-    self.downcase.tr(' ', '-').tr('.', '').tr('/', '-')
+    self.downcase.tr(' ', '-').tr('.', '').tr('/', '-').tr(',', '')
   end
   
 end

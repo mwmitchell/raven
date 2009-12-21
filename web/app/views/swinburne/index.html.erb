@@ -1,3 +1,9 @@
+<style type="text/css">
+.hit a em{
+	color:darkred;
+}
+</style>
+
 <% @page_title = @response.docs.first[:collection_title_t] rescue 'No matches' %>
 
 <form action="<%= swinburne_path %>">
@@ -6,23 +12,43 @@
 	<%= link_to('clear', swinburne_path) unless params[:q].blank? %>
 </form>
 
-<% poems_facet = @response.facets.detect{|f| f.name == 'poem_title_facet'} %>
+<h3>Poems</h3>
+<% poems_facet = @response.facets.detect{|f| f.name == 'poem_title_s'} %>
+<% variants_facet = @response.facets.detect{|f| f.name == 'variant_s'} %>
 
 <% if poems_facet %>
 	<ul>
-	<% poems_facet.items.each do |item| %>
+	<% poems_facet.items.each do |poem_facet_item| %>
 		<li>
-			<span>
-				<%= link_to item.value, swinburne_poem_path(item.value.to_slug) %>
-			</span><%= item.hits %>
-			<% if @response[:highlighting] %>
+			
+			<h4>
+				<%= link_to poem_facet_item.value, swinburne_poem_path(poem_facet_item.value.to_slug) %>
+				<span><%= " [#{poem_facet_item.hits}] " if params[:q] %>:</span>
+			</h4>
+			
+			<% if variants_facet %>
 				<ul>
-					<% (@response.docs.select{|d| d[:poem_title_facet][0] == item.value }[0..6]).each do |doc| %>
+				
+					<% variants_facet.items.each do |variant_facet_item| %>
 						<li>
-							<%= link_to @response[:highlighting][doc[:id]]['xml_t'], swinburne_poem_page_path(item.value.to_slug, doc[:local_id]) %></li>
+							<h5><%= link_to variant_facet_item.value %></h5>
+							<% if @response[:highlighting] %>
+								<ul>
+									<% (@response.docs.select{|d| d[:poem_title_s] == poem_facet_item.value and d[:variant_s] == variant_facet_item.value }).each do |doc| %>
+										<li class="hit">
+											... <%= link_to(
+												@response[:highlighting][doc[:id]]['xml_t'],
+												swinburne_poem_page_path(poem_facet_item.value.to_slug, doc[:local_id])
+											) %>
+										</li>
+									<% end %>
+								</ul>
+							<% end %>
+						</li>
 					<% end %>
 				</ul>
 			<% end %>
+			
 		</li>
 	<% end %>
 	</ul>
