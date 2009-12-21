@@ -1,1 +1,27 @@
-<%= h @response.inspect %>
+<%= stylesheet_link_tag 'swinburne' %>
+
+<% @page_title = @response.docs.first[:poem_title_t] %>
+
+<%= render 'shared_fields', :doc=>@response.docs.first %>
+
+<% variant_facet = @response.facets.detect{|f| f.name == 'variant_s'} %>
+
+<% variants = variant_facet.items.map{|i|i.value} %>
+
+<%
+doc_groups = {}
+variants.each do |v|
+	doc_groups[v] ||= []
+	doc_groups[v] = @response.docs.select{|d| d[:variant_s] == v }
+end
+%>
+
+<% doc_groups.each_pair do |variant,docs| %>
+	<h4><%= h variant %></h4>
+	<% docs.each_with_index do |doc,index| %>
+		<div>
+			<div style="border-bottom:1px solid #333; margin:1em 0;">p. <%= doc[:page_number_s] %></div>
+			<%= poem_xml_to_html doc[:xml_s] %>
+		</div>
+	<% end %>
+<% end %>

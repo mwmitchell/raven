@@ -5,6 +5,7 @@ module SwinburneHelper
 		body.traverse do |n|
 			css_classes = ["tei", n.name]
 			n.keys.each do |k|
+			  next if k == 'style'
 				css_classes << k
 				css_classes << k + '__' + n[k]
 				n.delete k
