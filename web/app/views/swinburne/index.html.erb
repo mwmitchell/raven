@@ -31,7 +31,7 @@
 				
 					<% variants_facet.items.each do |variant_facet_item| %>
 						<li>
-							<h5><%= link_to variant_facet_item.value %></h5>
+							<h5><%= link_to variant_facet_item.value, swinburne_variant_poem_path(variant_facet_item.value, poem_facet_item.value.to_slug) %></h5>
 							<% if @response[:highlighting] %>
 								<ul>
 									<% (@response.docs.select{|d| d[:poem_title_s] == poem_facet_item.value and d[:variant_s] == variant_facet_item.value }).each do |doc| %>

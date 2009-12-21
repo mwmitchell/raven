@@ -33,6 +33,18 @@ class Swinburne
     )
   end
   
+  def self.find_variant_poem variant_id, poem_title_id
+    connection.find(
+      :q=>%(poem_title_id:"#{poem_title_id}"),
+      :fq => [%(collection_id:"swinburne"),%(variant_s:"#{variant_id}")],
+      :rows => ALLROWS,
+      'facet' => true,
+      'facet.field' => ['variant_s'],
+      'facet' => true,
+      'facet.mincount' => 1
+    )
+  end
+  
   def self.find_by_local_id local_id
     connection.find :q => %(id:"swinburne-#{local_id}"), :rows => 1
   end
